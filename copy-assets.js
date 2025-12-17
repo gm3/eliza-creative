@@ -6,7 +6,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Directories to copy to docs
-const ASSET_DIRS = ['Music', 'Videos', 'ElizaOS Stickers'];
+const ASSET_DIRS = ['Music', 'Videos', 'ElizaOS Stickers', 'Brand Kit'];
 const DIST_DIR = path.join(__dirname, 'docs');
 
 // Recursively copy directory
@@ -42,6 +42,23 @@ async function copyAssets() {
         } catch (error) {
             console.warn(`Directory ${dir} not found, skipping...`);
         }
+    }
+    
+    // Copy About page files
+    try {
+        const aboutHtml = path.join(__dirname, 'about.html');
+        const aboutJs = path.join(__dirname, 'about.js');
+        
+        if (await fs.access(aboutHtml).then(() => true).catch(() => false)) {
+            await fs.copyFile(aboutHtml, path.join(DIST_DIR, 'about.html'));
+            console.log('✓ about.html copied');
+        }
+        if (await fs.access(aboutJs).then(() => true).catch(() => false)) {
+            await fs.copyFile(aboutJs, path.join(DIST_DIR, 'about.js'));
+            console.log('✓ about.js copied');
+        }
+    } catch (error) {
+        console.warn('Error copying About page files:', error.message);
     }
     
     console.log('Assets copied to docs folder!');

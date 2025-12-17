@@ -450,5 +450,12 @@
       "type": "file",
       "path": "/ElizaOS Stickers/ElizaStickerIdea6.jpg"
     }
+  ],
+  "Brand Kit": [
+    {
+      "name": "index.html",
+      "type": "file",
+      "path": "/Brand Kit/index.html"
+    }
   ]
 }
