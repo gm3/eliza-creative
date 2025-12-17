@@ -20,6 +20,24 @@ The goal is to **centralize creative primitives** so ElizaOS projects can stay c
 
 ---
 
+## 📁 Repository Structure
+
+```
+eliza-creative/
+├── Music/
+│   ├── 60 Sec Stingers/        # Short intro/outro/transition tracks
+│   ├── Ambient/                # Background music for apps, agents, videos
+│   ├── Beats/                  # Instrumental beats (DNB, Trap, etc.)
+│   ├── ElizaOS Beats/          # Brand-specific beats and themes
+│   ├── Fight Scenes/           # Action-oriented audio tracks
+│   └── Generic Songs With Lyrics/  # Full songs with vocals
+├── ElizaOS Stickers/           # Sticker designs and artwork
+├── Videos/                     # Video assets and clips
+└── Prompts/                    # Music generation prompts (coming soon)
+```
+
+---
+
 ## 🎵 Asset Types Included
 
 ### Audio
@@ -42,6 +60,9 @@ The goal is to **centralize creative primitives** so ElizaOS projects can stay c
 - **Short-form video assets**
 - **Loops**
 
+### Prompts & Tools
+- **Music generation prompts** - Templates and frameworks for creating music with AI tools
+
 ---
 
 ## 🧠 Philosophy
@@ -52,8 +73,8 @@ The goal is to **centralize creative primitives** so ElizaOS projects can stay c
 - **Iterative and evolving**
 - **Human + AI collaboration**
 
-This repo is not “finished.”  
-It’s meant to grow organically as ElizaOS grows.
+This repo is not "finished."  
+It's meant to grow organically as ElizaOS grows.
 
 ---
 
@@ -69,15 +90,17 @@ This repo welcomes forks, PRs, and collaboration.
 
 Submit a PR with:
 - What you added  
-- How it’s intended to be used  
+- How it's intended to be used  
 - Any relevant notes (tempo, mood, model, etc.)
 
 ### Contribution Guidelines
 
 - Original work or properly licensed content only  
 - Clearly label experimental vs production-ready assets  
+- Follow the existing folder structure  
 - Avoid destructive changes without discussion  
 - Small, focused PRs preferred  
+- Share music generation prompts in the `Prompts/` folder if you create music with AI
 
 ---
 
@@ -112,17 +135,17 @@ Some assets may be:
 - Exploratory  
 - Model-specific  
 
-That’s intentional.  
+That's intentional.  
 Creativity happens in public here.
 
 ---
 
 ## 🌱 Why This Exists
 
-ElizaOS isn’t just software — it’s culture.
+ElizaOS isn't just software — it's culture.
 
 This repo exists so:
-- Creative work doesn’t get lost  
+- Creative work doesn't get lost  
 - New creators can onboard faster  
 - A shared aesthetic can emerge naturally  
 - We build together instead of in silos  
@@ -133,11 +156,11 @@ This repo exists so:
 
 Created and maintained by the ElizaOS creative community.
 
-If you contribute, you’re part of it.
+If you contribute, you're part of it.
 
 ---
 
-## 🚀 Let’s Build
+## 🚀 Let's Build
 
 Add sounds.  
 Add visuals.  
@@ -146,5 +169,3 @@ Break things.
 Make them better.
 
 This is ElizaOS Creative — raw, open, and alive.
-
-

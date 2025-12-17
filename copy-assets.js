@@ -1,0 +1,50 @@
+import fs from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Directories to copy to dist
+const ASSET_DIRS = ['Music', 'Videos', 'ElizaOS Stickers'];
+const DIST_DIR = path.join(__dirname, 'dist');
+
+// Recursively copy directory
+async function copyDirectory(src, dest) {
+    await fs.mkdir(dest, { recursive: true });
+    const entries = await fs.readdir(src, { withFileTypes: true });
+    
+    for (const entry of entries) {
+        const srcPath = path.join(src, entry.name);
+        const destPath = path.join(dest, entry.name);
+        
+        if (entry.isDirectory()) {
+            await copyDirectory(srcPath, destPath);
+        } else {
+            await fs.copyFile(srcPath, destPath);
+        }
+    }
+}
+
+// Copy all asset directories to dist
+async function copyAssets() {
+    console.log('Copying assets to dist folder...');
+    
+    for (const dir of ASSET_DIRS) {
+        const srcPath = path.join(__dirname, dir);
+        const destPath = path.join(DIST_DIR, dir);
+        
+        try {
+            await fs.access(srcPath);
+            console.log(`Copying ${dir}...`);
+            await copyDirectory(srcPath, destPath);
+            console.log(`✓ ${dir} copied successfully`);
+        } catch (error) {
+            console.warn(`Directory ${dir} not found, skipping...`);
+        }
+    }
+    
+    console.log('Assets copied to dist folder!');
+}
+
+copyAssets().catch(console.error);

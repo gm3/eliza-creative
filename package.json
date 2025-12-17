@@ -1,0 +1,22 @@
+{
+  "name": "eliza-creative-browser",
+  "version": "1.0.0",
+  "description": "Frontend browser for ElizaOS Creative Asset Library",
+  "type": "module",
+  "scripts": {
+    "dev": "node build-manifest.js && vite",
+    "build": "node build-manifest.js && vite build && node copy-assets.js",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "elizaos",
+    "creative",
+    "assets",
+    "browser"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "vite": "^5.0.0"
+  }
+}
