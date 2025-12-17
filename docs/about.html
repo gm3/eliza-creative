@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - ElizaOS Creative Asset Library</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .about-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 60px 40px;
+        }
+        .about-header {
+            margin-bottom: 40px;
+        }
+        .about-header h1 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .about-header p {
+            font-size: 20px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        .about-section {
+            margin-bottom: 48px;
+        }
+        .about-section h2 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+        .about-section p {
+            font-size: 16px;
+            line-height: 1.8;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+        .about-section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .about-section li {
+            padding: 12px 0;
+            padding-left: 24px;
+            position: relative;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        .about-section li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-top: 24px;
+        }
+        .feature-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 24px;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .feature-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+        }
+        .feature-card h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+        .feature-card p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent);
+            text-decoration: none;
+            margin-bottom: 32px;
+            transition: color 0.2s;
+        }
+        .back-link:hover {
+            color: var(--accent-hover);
+        }
+        .cta-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 32px;
+            text-align: center;
+            margin-top: 48px;
+        }
+        .cta-section h2 {
+            margin-bottom: 16px;
+        }
+        .cta-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 24px;
+        }
+        .cta-button {
+            padding: 12px 24px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.2s;
+        }
+        .cta-button:hover {
+            background: var(--accent-hover);
+        }
+        .cta-button.secondary {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+        .cta-button.secondary:hover {
+            border-color: var(--accent);
+            background: var(--bg-tertiary);
+        }
+    </style>
+</head>
+<body>
+    <div class="about-container">
+        <a href="index.html" class="back-link">
+            ← Back to Browser
+        </a>
+        
+        <div class="about-header">
+            <h1>ElizaOS Creative Asset Library</h1>
+            <p>
+                A collaborative repository of creative assets for the ElizaOS ecosystem. 
+                This library serves as the source of truth for music, visuals, videos, and 
+                brand materials used across ElizaOS projects.
+            </p>
+        </div>
+
+        <div class="about-section">
+            <h2>What is this?</h2>
+            <p>
+                The ElizaOS Creative Asset Library is a centralized collection of creative resources 
+                designed to support creators, developers, and contributors working with ElizaOS. 
+                Whether you're building an ElizaOS agent, creating content, or developing integrations, 
+                this library provides ready-to-use assets that maintain brand consistency and quality.
+            </p>
+        </div>
+
+        <div class="about-section">
+            <h2>What's Inside</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>🎵 Music & Audio</h3>
+                    <p>Background music, beats, ambient tracks, and 60-second stingers for various use cases.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🎨 Visual Assets</h3>
+                    <p>Stickers, graphics, and brand imagery ready for use in projects and presentations.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🎬 Video Content</h3>
+                    <p>Video assets including demos, tutorials, and promotional content.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>📝 Brand Kit</h3>
+                    <p>Official logos, fonts, color palettes, and brand guidelines for consistent usage.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="about-section">
+            <h2>How It Works</h2>
+            <ul>
+                <li>
+                    <strong>Browse & Preview:</strong> Use the asset browser to explore all available resources. 
+                    Preview audio, video, and images directly in your browser.
+                </li>
+                <li>
+                    <strong>Download & Use:</strong> Download any asset you need for your projects. 
+                    All assets are organized by category for easy discovery.
+                </li>
+                <li>
+                    <strong>Contribute:</strong> Fork the repository, add your own assets, and submit 
+                    pull requests to help grow the library.
+                </li>
+                <li>
+                    <strong>Stay Updated:</strong> Assets are continuously added and updated by the community. 
+                    Check back regularly for new content.
+                </li>
+            </ul>
+        </div>
+
+        <div class="about-section">
+            <h2>For Contributors</h2>
+            <p>
+                This library thrives on community contributions. If you have music, visuals, or other 
+                creative assets that align with the ElizaOS brand and could benefit the community, 
+                we encourage you to contribute!
+            </p>
+            <p>
+                <strong>How to contribute:</strong>
+            </p>
+            <ul>
+                <li>Fork the repository</li>
+                <li>Add your assets to the appropriate directories</li>
+                <li>Submit a pull request with a description of your additions</li>
+                <li>Follow the existing folder structure and naming conventions</li>
+            </ul>
+        </div>
+
+        <div class="cta-section">
+            <h2>Ready to Explore?</h2>
+            <p>Start browsing the asset library and find what you need for your next ElizaOS project.</p>
+            <div class="cta-buttons">
+                <a href="index.html" class="cta-button">Browse Assets</a>
+                <a href="Brand Kit/index.html" class="cta-button secondary">View Brand Kit</a>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="about.js"></script>
+</body>
+</html>

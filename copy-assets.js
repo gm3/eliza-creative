@@ -61,6 +61,15 @@ async function copyAssets() {
         console.warn('Error copying About page files:', error.message);
     }
     
+    // Create .nojekyll file to disable Jekyll processing on GitHub Pages
+    try {
+        const nojekyllPath = path.join(DIST_DIR, '.nojekyll');
+        await fs.writeFile(nojekyllPath, '');
+        console.log('✓ .nojekyll file created');
+    } catch (error) {
+        console.warn('Error creating .nojekyll file:', error.message);
+    }
+    
     console.log('Assets copied to docs folder!');
 }
 

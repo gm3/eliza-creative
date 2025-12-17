@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ElizaOS Creative Asset Browser</title>
+  <script type="module" crossorigin src="/assets/index-D5LCjn77.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-BbsJH1Vp.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Left Panel - File Browser -->
+        <aside class="browser-panel">
+            <div class="browser-header">
+                <div class="logo-section">
+                    <div class="logo-icon">E</div>
+                    <h2>ElizaOS Creative</h2>
+                </div>
+                <nav class="browser-nav">
+                    <button class="nav-link" id="nav-browser" data-view="browser">
+                        <span class="nav-icon">📁</span>
+                        <span>Browser</span>
+                    </button>
+                    <button class="nav-link" id="nav-about" data-view="about">
+                        <span class="nav-icon">ℹ️</span>
+                        <span>About</span>
+                    </button>
+                </nav>
+            </div>
+            <div class="browser-content">
+                <div id="file-tree" class="file-tree">
+                    <!-- File tree will be populated by JavaScript -->
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Panel - Asset Preview -->
+        <main class="main-panel">
+            <div class="main-header">
+                <div class="header-left">
+                    <h1 id="asset-title">Select an asset to preview</h1>
+                    <div class="search-container">
+                        <input type="text" id="search-input" class="search-input" placeholder="Search assets...">
+                        <button id="search-clear" class="search-clear" title="Clear search" style="display: none;">✕</button>
+                    </div>
+                </div>
+                <div class="view-toggle">
+                    <button id="preview-view-btn" class="view-btn active" title="Preview View">👁️</button>
+                    <button id="bento-view-btn" class="view-btn" title="Bento Grid View">⊞</button>
+                </div>
+            </div>
+            <div class="main-content" id="asset-preview">
+                <div class="empty-state">
+                    <p>Browse assets from the left panel</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+</body>
+</html>

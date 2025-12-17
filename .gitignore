@@ -1,6 +1,7 @@
 node_modules/
 .DS_Store
 *.log
-docs/
 public/manifest.json
 manifest.json
+# Allow docs folder for GitHub Pages deployment
+!docs/.nojekyll

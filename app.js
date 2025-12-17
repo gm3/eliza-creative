@@ -187,6 +187,13 @@ function renderBentoGrid() {
         return ['mp3', 'wav', 'ogg', 'm4a'].includes(ext);
     });
     
+    // Check if we should use list layout for audio items
+    const hasAudioItems = assetsToShow.some(asset => {
+        const ext = asset.name.split('.').pop().toLowerCase();
+        return ['mp3', 'wav', 'ogg', 'm4a'].includes(ext);
+    });
+    const useListLayout = isMusicView && hasAudioItems;
+    
     let gridHTML = '';
     
     // Add music player if viewing music assets with audio files
@@ -194,7 +201,11 @@ function renderBentoGrid() {
         gridHTML += renderMusicPlayer(audioAssets);
     }
     
-    gridHTML += '<div class="bento-grid">';
+    if (useListLayout) {
+        gridHTML += '<div class="audio-list">';
+    } else {
+        gridHTML += '<div class="bento-grid">';
+    }
     
     assetsToShow.forEach(asset => {
         const ext = asset.name.split('.').pop().toLowerCase();
@@ -244,30 +255,64 @@ function renderBentoGrid() {
                 </div>
             `;
         } else if (type === 'audio') {
-            gridHTML += `
-                <div class="bento-item audio" data-path="${escapeHtml(asset.path)}" data-name="${escapeHtml(asset.name)}">
-                    <div class="bento-item-placeholder">
-                        <div class="bento-item-placeholder-icon">🎵</div>
-                        <div class="bento-item-placeholder-title">${escapeHtml(asset.name)}</div>
-                        <div class="bento-item-placeholder-path">${escapeHtml(asset.path)}</div>
+            if (useListLayout) {
+                // List layout for audio items
+                gridHTML += `
+                    <div class="audio-list-item" data-path="${escapeHtml(asset.path)}" data-name="${escapeHtml(asset.name)}">
+                        <div class="audio-list-icon">🎵</div>
+                        <div class="audio-list-info">
+                            <div class="audio-list-title">${escapeHtml(asset.name)}</div>
+                            <div class="audio-list-path">${escapeHtml(asset.path)}</div>
+                        </div>
+                        <button class="audio-list-download" data-download-path="${escapeHtml(asset.path)}" data-download-name="${escapeHtml(asset.name)}" title="Download Audio">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                        </button>
                     </div>
-                    <div class="bento-item-icon"></div>
-                </div>
-            `;
+                `;
+            } else {
+                // Grid layout for audio items (when not in music view)
+                gridHTML += `
+                    <div class="bento-item audio" data-path="${escapeHtml(asset.path)}" data-name="${escapeHtml(asset.name)}">
+                        <div class="bento-item-placeholder">
+                            <div class="bento-item-placeholder-icon">🎵</div>
+                            <div class="bento-item-placeholder-title">${escapeHtml(asset.name)}</div>
+                            <div class="bento-item-placeholder-path">${escapeHtml(asset.path)}</div>
+                            <button class="download-button-overlay audio-download-btn" data-download-path="${escapeHtml(asset.path)}" data-download-name="${escapeHtml(asset.name)}" title="Download Audio">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="7 10 12 15 17 10"></polyline>
+                                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="bento-item-icon"></div>
+                    </div>
+                `;
+            }
         }
     });
     
-    gridHTML += '</div>';
+    if (useListLayout) {
+        gridHTML += '</div>';
+    } else {
+        gridHTML += '</div>';
+    }
     previewContainer.innerHTML = gridHTML;
     
-    // Animate bento grid items with Motion.dev
-    const bentoItems = document.querySelectorAll('.bento-item');
-    if (bentoItems.length > 0) {
-        animate(bentoItems,
+    // Animate items with Motion.dev
+    const items = useListLayout 
+        ? document.querySelectorAll('.audio-list-item')
+        : document.querySelectorAll('.bento-item');
+    if (items.length > 0) {
+        animate(items,
             { opacity: [0, 1], scale: [0.9, 1], y: [20, 0] },
             {
                 duration: 0.4,
-                delay: stagger(0.03),
+                delay: stagger(0.02),
                 easing: 'ease-out'
             }
         );
@@ -279,7 +324,34 @@ function renderBentoGrid() {
         setupMusicPlayer(audioAssets);
     }
     
-    // Add click handlers to bento items
+    // Add click handlers to audio list items
+    document.querySelectorAll('.audio-list-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const path = item.getAttribute('data-path');
+            const name = item.getAttribute('data-name');
+            
+            // If we have a music player, play it
+            if (isMusicView && audioAssets.length > 0) {
+                const audioIndex = audioAssets.findIndex(a => {
+                    const aPath = a.path.startsWith('/') ? a.path : `/${a.path}`;
+                    const itemPath = path.startsWith('/') ? path : `/${path}`;
+                    return aPath === itemPath;
+                });
+                if (audioIndex !== -1) {
+                    playTrackInPlayer(audioIndex);
+                    return;
+                }
+            }
+            
+            // Otherwise, switch to preview view and load the asset
+            currentView = 'preview';
+            document.getElementById('preview-view-btn').classList.add('active');
+            document.getElementById('bento-view-btn').classList.remove('active');
+            selectFile(path, name);
+        });
+    });
+    
+    // Add click handlers to bento items (non-audio or non-music view)
     document.querySelectorAll('.bento-item').forEach(item => {
         item.addEventListener('click', () => {
             const path = item.getAttribute('data-path');
@@ -390,6 +462,46 @@ function renderBentoGrid() {
     
     // Add download handlers for image download buttons in bento grid
     document.querySelectorAll('.bento-item .image-container-bento .download-button-overlay').forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent triggering the item click
+            e.preventDefault();
+            const path = button.getAttribute('data-download-path');
+            const name = button.getAttribute('data-download-name');
+            const downloadUrl = path.startsWith('/') ? path : `/${path}`;
+            
+            // Create a temporary anchor element to trigger download
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = name;
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    });
+    
+    // Add download handlers for audio download buttons in bento grid
+    document.querySelectorAll('.bento-item .audio-download-btn').forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent triggering the item click
+            e.preventDefault();
+            const path = button.getAttribute('data-download-path');
+            const name = button.getAttribute('data-download-name');
+            const downloadUrl = path.startsWith('/') ? path : `/${path}`;
+            
+            // Create a temporary anchor element to trigger download
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = name;
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    });
+    
+    // Add download handlers for audio list download buttons
+    document.querySelectorAll('.audio-list-download').forEach(button => {
         button.addEventListener('click', (e) => {
             e.stopPropagation(); // Prevent triggering the item click
             e.preventDefault();
@@ -984,7 +1096,9 @@ let musicPlayerState = {
     currentTrackIndex: 0,
     playlist: [],
     audioElement: null,
-    isPlaying: false
+    isPlaying: false,
+    volume: 1.0, // 0.0 to 1.0
+    isMuted: false
 };
 
 // Render music player component
@@ -1023,6 +1137,10 @@ function renderMusicPlayer(audioAssets) {
                         <input type="range" class="music-player-seek" id="music-player-seek" min="0" max="100" value="0">
                         <div class="music-player-time" id="music-player-duration">0:00</div>
                     </div>
+                    <div class="music-player-volume">
+                        <button class="music-player-btn music-player-volume-btn" id="music-player-mute" title="Mute/Unmute">🔊</button>
+                        <input type="range" class="music-player-volume-slider" id="music-player-volume" min="0" max="100" value="100">
+                    </div>
                 </div>
             </div>
         </div>
@@ -1039,6 +1157,54 @@ function setupMusicPlayer(audioAssets) {
     
     // Load first track
     loadTrack(0);
+    
+    // Volume controls
+    const volumeSlider = document.getElementById('music-player-volume');
+    const muteBtn = document.getElementById('music-player-mute');
+    
+    if (volumeSlider) {
+        volumeSlider.addEventListener('input', (e) => {
+            const volume = e.target.value / 100;
+            musicPlayerState.volume = volume;
+            if (audio) {
+                audio.volume = volume;
+                // Update mute state
+                if (volume === 0) {
+                    musicPlayerState.isMuted = true;
+                    if (muteBtn) muteBtn.textContent = '🔇';
+                } else if (musicPlayerState.isMuted && volume > 0) {
+                    musicPlayerState.isMuted = false;
+                    if (muteBtn) muteBtn.textContent = '🔊';
+                }
+            }
+        });
+        
+        // Set initial volume
+        volumeSlider.value = musicPlayerState.volume * 100;
+        if (audio) {
+            audio.volume = musicPlayerState.volume;
+        }
+    }
+    
+    if (muteBtn) {
+        muteBtn.addEventListener('click', () => {
+            if (audio) {
+                if (musicPlayerState.isMuted) {
+                    // Unmute - restore previous volume
+                    audio.volume = musicPlayerState.volume;
+                    musicPlayerState.isMuted = false;
+                    muteBtn.textContent = '🔊';
+                    if (volumeSlider) volumeSlider.value = musicPlayerState.volume * 100;
+                } else {
+                    // Mute
+                    audio.volume = 0;
+                    musicPlayerState.isMuted = true;
+                    muteBtn.textContent = '🔇';
+                    if (volumeSlider) volumeSlider.value = 0;
+                }
+            }
+        });
+    }
     
     // Download button
     const downloadBtn = document.getElementById('music-player-download');
@@ -1156,8 +1322,8 @@ function loadTrack(index) {
             updateDownloadButton(downloadBtn, track);
         }
         
-        // Highlight active track in bento grid
-        document.querySelectorAll('.bento-item.audio').forEach((item) => {
+        // Highlight active track in bento grid and audio list
+        document.querySelectorAll('.bento-item.audio, .audio-list-item').forEach((item) => {
             const itemPath = item.getAttribute('data-path');
             const trackPathNormalized = track.path.startsWith('/') ? track.path : `/${track.path}`;
             const itemPathNormalized = itemPath.startsWith('/') ? itemPath : `/${itemPath}`;
