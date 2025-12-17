@@ -4,9 +4,9 @@ export default defineConfig({
   // For GitHub Pages, set base to your repo name, or '/' for root
   base: process.env.GITHUB_PAGES ? '/eliza-creative/' : '/',
   build: {
-    outDir: 'dist',
+    outDir: 'docs',
     assetsDir: 'assets',
-    // Copy manifest.json to dist
+    // Copy manifest.json to docs
     copyPublicDir: true
   },
   publicDir: 'public',

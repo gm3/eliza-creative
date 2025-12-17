@@ -5,9 +5,9 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Directories to copy to dist
+// Directories to copy to docs
 const ASSET_DIRS = ['Music', 'Videos', 'ElizaOS Stickers'];
-const DIST_DIR = path.join(__dirname, 'dist');
+const DIST_DIR = path.join(__dirname, 'docs');
 
 // Recursively copy directory
 async function copyDirectory(src, dest) {
@@ -26,9 +26,9 @@ async function copyDirectory(src, dest) {
     }
 }
 
-// Copy all asset directories to dist
+// Copy all asset directories to docs
 async function copyAssets() {
-    console.log('Copying assets to dist folder...');
+    console.log('Copying assets to docs folder...');
     
     for (const dir of ASSET_DIRS) {
         const srcPath = path.join(__dirname, dir);
@@ -44,7 +44,7 @@ async function copyAssets() {
         }
     }
     
-    console.log('Assets copied to dist folder!');
+    console.log('Assets copied to docs folder!');
 }
 
 copyAssets().catch(console.error);
