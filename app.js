@@ -943,6 +943,38 @@ function selectFile(path, name) {
         return;
     }
     
+    // Special handling for audio files - load into persistent player instead of preview
+    const fileExtension = name.split('.').pop().toLowerCase();
+    if (['mp3', 'wav', 'ogg', 'm4a'].includes(fileExtension)) {
+        const basePath = getBasePath();
+        const itemPathNormalized = path.startsWith('/') ? path : `/${path}`;
+        const fullItemPath = `${basePath}${itemPathNormalized}`;
+        
+        // Find the track in the global playlist
+        const globalAudioIndex = musicPlayerState.playlist.findIndex(track => {
+            return track.path === fullItemPath || track.path.endsWith(itemPathNormalized);
+        });
+        
+        if (globalAudioIndex !== -1) {
+            // Track found in playlist - play it in persistent player
+            playTrackInPlayer(globalAudioIndex);
+            
+            // Update active state - find the clicked element by path
+            document.querySelectorAll('.file-tree-item').forEach(item => {
+                item.classList.remove('active');
+                // Check if this item matches the clicked path
+                const itemPath = item.getAttribute('data-path');
+                if (itemPath === path || itemPath === name) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Don't show preview - just play in persistent player
+            return;
+        }
+        // If track not found in playlist, fall through to show preview
+    }
+    
     // Store previous view state before switching to preview
     if (currentView === 'bento') {
         // We're coming from bento view - store current state
