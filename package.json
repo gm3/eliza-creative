@@ -9,7 +9,8 @@
     "build-no-thumbnails": "node build-manifest.js && vite build && node copy-assets.js",
     "preview": "vite preview",
     "manifest": "node build-manifest.js",
-    "thumbnails": "node generate-thumbnails.js"
+    "thumbnails": "node generate-thumbnails.js",
+    "postinstall": "node generate-thumbnails.js"
   },
   "keywords": [
     "elizaos",

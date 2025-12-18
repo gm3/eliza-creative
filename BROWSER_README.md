@@ -13,13 +13,15 @@ A dark-mode, sleek frontend application for exploring and managing the ElizaOS C
 npm install
 ```
 
+⚡ **Thumbnails are automatically generated during installation!** This may take a few minutes if you have many images, as it processes all images in your asset directories.
+
 ### Development
 ```bash
 npm run dev
 ```
 This will:
 1. Generate/update the `manifest.json` file by scanning asset directories
-2. Start the Vite development server on `http://localhost:3000`
+2. Start the Vite development server (usually at `http://localhost:5173`)
 3. Automatically reload when you make code changes
 
 ### Building for Production
@@ -28,10 +30,11 @@ npm run build
 ```
 This will:
 1. Generate/update the `manifest.json` file
-2. Build the application with Vite (outputs to `/docs`)
-3. Copy all asset directories to `/docs`
-4. Copy `manifest.json` to `/docs`
-5. Create `.nojekyll` file for GitHub Pages
+2. **Generate thumbnails** for all images (if not already up-to-date)
+3. Build the application with Vite (outputs to `/docs`)
+4. Copy all asset directories and thumbnails to `/docs`
+5. Copy `manifest.json` to `/docs`
+6. Create `.nojekyll` file for GitHub Pages
 
 ### Preview Production Build
 ```bash
@@ -45,6 +48,12 @@ npm run manifest
 ```
 Manually regenerate the `manifest.json` file without building.
 
+### Regenerate Thumbnails
+```bash
+npm run thumbnails
+```
+Manually regenerate thumbnails for all images. Useful after adding new images or if thumbnails are outdated.
+
 ---
 
 ## 📁 Project Structure
@@ -57,8 +66,10 @@ eliza-creative/
 ├── about.html              # About page content
 ├── about.js                # About page animations
 ├── build-manifest.js       # Script to generate manifest.json from asset directories
+├── generate-thumbnails.js  # Script to generate image thumbnails
 ├── copy-assets.js          # Script to copy assets to /docs after build
 ├── vite.config.js          # Vite build configuration
+├── thumbnails/             # Generated thumbnails directory (gitignored)
 ├── public/
 │   └── manifest.json       # Generated file manifest (gitignored)
 ├── docs/                   # Build output (for GitHub Pages)
@@ -172,6 +183,14 @@ npm run build
 - **Browser**: Default file browser view
 - **About**: Information about the site
 - **Brand Kit**: Brand guidelines and assets (loads dynamically)
+- **Back Button**: Returns to previous folder/view when previewing assets
+
+### Performance Optimizations
+- **Thumbnails**: Automatic generation of optimized image thumbnails
+- **Lazy Loading**: Images load only when entering viewport
+- **Pagination**: Initial load limited to 30 items, "Load More" for additional items
+- **Event Delegation**: Efficient event handling for large grids
+- **Video Thumbnails**: First frame automatically loads for video previews
 
 ---
 
@@ -244,9 +263,15 @@ npm run build
 - **Output**: `public/manifest.json` and root `manifest.json`
 - **File types**: Automatically detects images, audio, video
 
+### Thumbnail Generation (`generate-thumbnails.js`)
+- **Scans**: All image files in asset directories (JPG, PNG, GIF, WebP)
+- **Generates**: 400x400px JPEG thumbnails
+- **Output**: `/thumbnails` directory (preserves folder structure)
+- **Smart**: Skips images that already have up-to-date thumbnails
+
 ### Asset Copying (`copy-assets.js`)
 - **Copies**: All asset directories to `/docs`
-- **Also copies**: `about.html`, `about.js`, `manifest.json`
+- **Also copies**: `thumbnails/`, `about.html`, `about.js`, `manifest.json`
 - **Creates**: `.nojekyll` file
 
 ---
@@ -263,6 +288,12 @@ npm run build
 - **Check directory**: Ensure files are in scanned directories
 - **Rebuild**: `npm run build`
 
+### Thumbnails not loading
+- **Regenerate thumbnails**: `npm run thumbnails`
+- **Check thumbnails directory**: Ensure `/thumbnails` exists and has files
+- **Verify Sharp is installed**: `npm install sharp`
+- **Check file permissions**: Ensure write access to create thumbnails
+
 ### 404 errors on GitHub Pages
 - **Base path**: Verify `vite.config.js` has correct `base` setting
 - **File paths**: Check browser console for actual requested URLs
@@ -275,14 +306,58 @@ npm run build
 
 ---
 
+## 🖼️ Thumbnails
+
+### Automatic Generation
+
+Thumbnails are **automatically generated** when you run:
+- `npm install` (via `postinstall` script)
+- `npm run build` (before building)
+
+### Manual Generation
+
+To regenerate thumbnails manually:
+```bash
+npm run thumbnails
+```
+
+### Thumbnail Details
+
+- **Size:** 400x400px maximum (maintains aspect ratio)
+- **Format:** JPEG (80% quality) for consistency and smaller file sizes
+- **Location:** `/thumbnails` directory (mirrors asset folder structure)
+- **Performance:** Thumbnails are ~10-100x smaller than original images, dramatically improving page load times
+
+### Performance Benefits
+
+Using thumbnails provides significant performance improvements:
+
+- **Faster Initial Load:** Only 30 small thumbnails load initially (vs. 30+ full-size images)
+- **Reduced Memory Usage:** Thumbnails are 10-100x smaller, using much less RAM
+- **Better Scrolling:** Lazy loading with Intersection Observer loads images as you scroll
+- **Scalable:** Works efficiently with thousands of images
+
+### Disabling Automatic Thumbnails
+
+If you want to skip thumbnail generation during install:
+1. Remove the `postinstall` script from `package.json`
+2. Or use `npm install --ignore-scripts`
+
+**Note:** Without thumbnails, the site will still work but will load full-size images, which may be slow with many images.
+
+---
+
 ## 📝 Scripts Reference
 
 | Command | Description |
 |---------|-------------|
+| `npm install` | Install dependencies and **automatically generate thumbnails** |
 | `npm run dev` | Start development server (auto-regenerates manifest) |
-| `npm run build` | Build for production (generates manifest, builds, copies assets) |
+| `npm run build` | Build for production (generates manifest, thumbnails, builds, copies assets) |
+| `npm run build-no-thumbnails` | Build without regenerating thumbnails (faster) |
 | `npm run preview` | Preview production build locally |
 | `npm run manifest` | Regenerate manifest.json only |
+| `npm run thumbnails` | Manually regenerate all thumbnails |
 
 ---
 
@@ -312,6 +387,7 @@ When contributing to the browser:
 
 - **Vite**: Build tool and dev server
 - **Motion.dev**: Animation library for smooth UI transitions
+- **Sharp**: Image processing library for thumbnail generation
 
 ---
 
@@ -321,4 +397,5 @@ When contributing to the browser:
 - `package.json` - Project metadata and scripts
 - `vite.config.js` - Build configuration
 - `build-manifest.js` - Manifest generation script
+- `generate-thumbnails.js` - Thumbnail generation script
 - `copy-assets.js` - Asset copying script
