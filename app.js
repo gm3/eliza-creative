@@ -85,7 +85,8 @@ function collectAllAssets() {
     }
     
     Object.keys(manifest).forEach(key => {
-        if (key !== '.') {
+        // Skip Brand Kit - it's now in navigation, not file tree
+        if (key !== '.' && key !== 'Brand Kit') {
             traverse(manifest[key]);
         }
     });
@@ -143,7 +144,19 @@ function renderBentoGrid() {
     
     // Reset event listener flag when re-rendering (new container created)
     gridEventListenersAttached = false;
-    currentPage = 1; // Reset to first page
+    currentPage = 1; // Reset to first page when starting fresh
+    
+    // Clean up any existing observers
+    const oldLoadMoreBtn = previewContainer.querySelector('#load-more-btn');
+    if (oldLoadMoreBtn && oldLoadMoreBtn._scrollObserver) {
+        oldLoadMoreBtn._scrollObserver.disconnect();
+    }
+    
+    // Disconnect and reset global image observer when starting fresh grid
+    if (globalImageObserver) {
+        globalImageObserver.disconnect();
+        globalImageObserver = null;
+    }
     
     // Get assets based on current folder context
     let assetsToShow = currentFolderContext ? getAssetsFromFolder(currentFolderContext) : allAssets;
@@ -304,9 +317,12 @@ function renderBentoGridItems(itemsToRender, totalCount, previewContainer) {
         gridHTML += '</div>';
     }
     
+    // Calculate how many items have been rendered so far
+    const itemsRenderedSoFar = (currentPage - 1) * itemsPerPage + itemsToRender.length;
+    const remaining = totalCount - itemsRenderedSoFar;
+    
     // Add "Load More" button if there are more items
-    if (totalCount > itemsToRender.length) {
-        const remaining = totalCount - itemsToRender.length;
+    if (remaining > 0) {
         gridHTML += `
             <div class="load-more-container">
                 <button id="load-more-btn" class="load-more-btn">
@@ -338,6 +354,9 @@ function renderBentoGridItems(itemsToRender, totalCount, previewContainer) {
                 oldLoadMore.replaceWith(newLoadMore);
             } else if (newLoadMore) {
                 existingGrid.parentElement.appendChild(newLoadMore);
+            } else if (oldLoadMore && remaining <= 0) {
+                // Remove button if no more items
+                oldLoadMore.remove();
             }
             
             // Re-observe new videos for thumbnail loading
@@ -500,30 +519,60 @@ function renderBentoGridItems(itemsToRender, totalCount, previewContainer) {
         });
     }
     
-    // Setup "Load More" button
-    const loadMoreBtn = previewContainer.querySelector('#load-more-btn');
-    if (loadMoreBtn) {
-        loadMoreBtn.addEventListener('click', () => {
-            loadMoreItems(previewContainer, totalCount);
-        });
-    }
+    // Setup "Load More" button - use event delegation to handle dynamically added buttons
+    previewContainer.addEventListener('click', (e) => {
+        if (e.target.id === 'load-more-btn' || e.target.closest('#load-more-btn')) {
+            e.preventDefault();
+            e.stopPropagation();
+            const btn = e.target.id === 'load-more-btn' ? e.target : e.target.closest('#load-more-btn');
+            if (btn && !btn.disabled) {
+                btn.disabled = true; // Prevent double-clicks
+                loadMoreItems(previewContainer, totalCount);
+                // Re-enable after a short delay
+                setTimeout(() => {
+                    const newBtn = previewContainer.querySelector('#load-more-btn');
+                    if (newBtn) newBtn.disabled = false;
+                }, 100);
+            }
+        }
+    });
     
     // Setup Intersection Observer for lazy image loading
     setupLazyImageLoading(previewContainer);
     
     // Setup Intersection Observer for infinite scroll (optional - loads more when near bottom)
-    setupInfiniteScroll(previewContainer, totalCount);
+    // Only if there are more items to load
+    if (allItemsToRender.length > currentPage * itemsPerPage) {
+        setupInfiniteScroll(previewContainer, totalCount);
+    }
 }
 
 // Load more items when "Load More" is clicked
 function loadMoreItems(previewContainer, totalCount) {
+    // Increment page before calculating
     currentPage++;
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const nextItems = allItemsToRender.slice(startIndex, endIndex);
     
     if (nextItems.length > 0) {
+        // Render the next batch of items
         renderBentoGridItems(nextItems, totalCount, previewContainer);
+        
+        // Re-setup lazy loading for new images
+        setupLazyImageLoading(previewContainer);
+        
+        // Re-setup infinite scroll if there are still more items
+        const itemsRenderedSoFar = currentPage * itemsPerPage;
+        if (allItemsToRender.length > itemsRenderedSoFar) {
+            setupInfiniteScroll(previewContainer, totalCount);
+        }
+    } else {
+        // No more items - remove the button if it exists
+        const loadMoreBtn = previewContainer.querySelector('#load-more-btn');
+        if (loadMoreBtn) {
+            loadMoreBtn.closest('.load-more-container')?.remove();
+        }
     }
 }
 
@@ -552,44 +601,65 @@ function setupInfiniteScroll(previewContainer, totalCount) {
 }
 
 // Setup lazy loading for images using Intersection Observer
+// Use a single global observer to avoid creating multiple observers
+let globalImageObserver = null;
+
 function setupLazyImageLoading(container) {
-    const lazyImages = container.querySelectorAll('img.lazy-image[data-src]');
+    // Only get images that haven't been loaded yet (still have data-src and lazy-image class)
+    const lazyImages = container.querySelectorAll('img.lazy-image[data-src]:not([src])');
+    
+    if (lazyImages.length === 0) return; // No new images to observe
     
     if ('IntersectionObserver' in window) {
-        const imageObserver = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const img = entry.target;
-                    // Load thumbnail first (much smaller file size)
-                    const thumbnailSrc = img.getAttribute('data-src');
-                    const fallbackSrc = img.getAttribute('data-fallback');
-                    
-                    // Try to load thumbnail, fallback to full image on error
-                    img.onerror = function() {
-                        if (this.src !== fallbackSrc) {
-                            this.src = fallbackSrc;
+        // Create observer only once, reuse it
+        if (!globalImageObserver) {
+            globalImageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        // Skip if already loaded
+                        if (img.src || !img.hasAttribute('data-src')) {
+                            observer.unobserve(img);
+                            return;
                         }
-                    };
-                    
-                    img.src = thumbnailSrc;
-                    img.classList.remove('lazy-image');
-                    img.removeAttribute('data-src');
-                    
-                    observer.unobserve(img);
-                }
+                        
+                        // Load thumbnail first (much smaller file size)
+                        const thumbnailSrc = img.getAttribute('data-src');
+                        const fallbackSrc = img.getAttribute('data-fallback');
+                        
+                        // Try to load thumbnail, fallback to full image on error
+                        img.onerror = function() {
+                            if (this.src !== fallbackSrc && fallbackSrc) {
+                                this.src = fallbackSrc;
+                            }
+                        };
+                        
+                        img.src = thumbnailSrc;
+                        img.classList.remove('lazy-image');
+                        img.removeAttribute('data-src');
+                        
+                        observer.unobserve(img);
+                    }
+                });
+            }, {
+                rootMargin: '100px' // Start loading 100px before image enters viewport
             });
-        }, {
-            rootMargin: '100px' // Start loading 100px before image enters viewport
-        });
+        }
         
-        lazyImages.forEach(img => imageObserver.observe(img));
+        // Only observe images that aren't already being observed
+        lazyImages.forEach(img => {
+            // Check if image is already being observed or already loaded
+            if (!img.src && img.hasAttribute('data-src')) {
+                globalImageObserver.observe(img);
+            }
+        });
     } else {
         // Fallback for browsers without Intersection Observer
         lazyImages.forEach(img => {
             const fallback = img.getAttribute('data-fallback');
             img.src = img.getAttribute('data-src') || fallback;
             img.onerror = function() {
-                if (this.src !== fallback) {
+                if (this.src !== fallback && fallback) {
                     this.src = fallback;
                 }
             };
@@ -658,8 +728,11 @@ function renderRootDirectories() {
     
     if (!manifest) return;
     
-    // Render each root directory
+    // Render each root directory (exclude Brand Kit - it's in navigation now)
     Object.keys(manifest).forEach(key => {
+        // Skip Brand Kit folder - it's now in the navigation menu
+        if (key === 'Brand Kit') return;
+        
         const items = manifest[key];
         if (key === '.') {
             // Root level files
@@ -710,6 +783,17 @@ function renderFileItem(item, parentElement, level) {
 
 // Toggle folder expansion
 function toggleFolder(element, dirName, children) {
+    // Special handling: If Brand Kit folder is clicked, load the Brand Kit page directly
+    if (dirName === 'Brand Kit') {
+        loadBrandKitPage();
+        // Also set active nav link
+        const navLinks = document.querySelectorAll('.nav-link');
+        navLinks.forEach(l => l.classList.remove('active'));
+        const brandKitNav = document.getElementById('nav-brand-kit');
+        if (brandKitNav) brandKitNav.classList.add('active');
+        return;
+    }
+    
     const icon = element.querySelector('.folder-icon');
     const isExpanded = icon.classList.contains('expanded');
     
@@ -1096,6 +1180,8 @@ function setupNavigation() {
                 loadShowcasePage();
             } else if (view === 'llms') {
                 loadLLMsPage();
+            } else if (view === 'brand-kit') {
+                loadBrandKitPage();
             }
         });
     });
