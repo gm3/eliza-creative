@@ -9,6 +9,7 @@ let allAssets = []; // Flat list of all assets for bento view
 let currentFolderContext = null; // Current folder path for filtering bento view
 let searchQuery = ''; // Current search query
 let gridEventListenersAttached = false; // Track if event listeners are already attached
+let previousViewState = null; // Store previous view state for back button (bento/folder context)
 let itemsPerPage = 30; // Number of items to render initially (reduced for better performance)
 let currentPage = 1; // Current page of items
 let allItemsToRender = []; // All items that should be rendered (for pagination)
@@ -237,7 +238,7 @@ function renderBentoGridItems(itemsToRender, totalCount, previewContainer) {
             gridHTML += `
                 <div class="bento-item video" data-path="${escapeHtml(asset.path)}" data-name="${escapeHtml(asset.name)}">
                     <div class="video-container">
-                        <video muted loop preload="none" loading="lazy">
+                        <video muted loop preload="metadata" loading="lazy" playsinline>
                             <source src="${assetUrl}" type="video/${ext === 'mov' ? 'quicktime' : ext}">
                         </video>
                         <button class="download-button-overlay" data-download-path="${escapeHtml(asset.path)}" data-download-name="${escapeHtml(asset.name)}" title="Download Video">
@@ -338,6 +339,12 @@ function renderBentoGridItems(itemsToRender, totalCount, previewContainer) {
             } else if (newLoadMore) {
                 existingGrid.parentElement.appendChild(newLoadMore);
             }
+            
+            // Re-observe new videos for thumbnail loading
+            const gridContainerAfter = previewContainer.querySelector('.bento-grid, .audio-list');
+            if (gridContainerAfter && typeof gridContainerAfter.observeVideos === 'function') {
+                gridContainerAfter.observeVideos();
+            }
         }
     }
     
@@ -365,13 +372,43 @@ function renderBentoGridItems(itemsToRender, totalCount, previewContainer) {
     if (gridContainer && !gridEventListenersAttached) {
         gridEventListenersAttached = true;
         
-        // Video hover handling
+        // Video hover handling - load metadata first to show thumbnail, then play on hover
         let hoverTimeout;
+        
+        // Load video metadata when video enters viewport (for thumbnail)
+        const videoObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const video = entry.target;
+                    if (video.readyState === 0) {
+                        // Only load metadata if not already loaded
+                        video.load();
+                    }
+                }
+            });
+        }, { rootMargin: '100px' });
+        
+        // Observe all videos in the grid (re-observe after new items are added)
+        // Store on gridContainer for access when new items are added
+        gridContainer.observeVideos = () => {
+            gridContainer.querySelectorAll('video').forEach(video => {
+                // Only observe if not already observed
+                if (!video.dataset.observed) {
+                    videoObserver.observe(video);
+                    video.dataset.observed = 'true';
+                }
+            });
+        };
+        gridContainer.observeVideos();
+        
         gridContainer.addEventListener('mouseenter', (e) => {
             const video = e.target.closest('.bento-item.video')?.querySelector('video');
             if (video) {
                 clearTimeout(hoverTimeout);
-                video.load(); // Load video only when hovering
+                // Ensure video is loaded, then play
+                if (video.readyState < 2) {
+                    video.load();
+                }
                 video.play().catch(() => {});
             }
         }, true);
@@ -451,6 +488,12 @@ function renderBentoGridItems(itemsToRender, totalCount, previewContainer) {
                 }
                 
                 // Otherwise, switch to preview view and load the asset
+                // Store previous view state before switching
+                previousViewState = {
+                    view: 'bento',
+                    folderContext: currentFolderContext,
+                    searchQuery: searchQuery
+                };
                 currentView = 'preview';
                 selectFile(path, name);
             }
@@ -816,8 +859,31 @@ function selectFile(path, name) {
         return;
     }
     
-    // Switch to preview view if in bento view
+    // Store previous view state before switching to preview
     if (currentView === 'bento') {
+        // We're coming from bento view - store current state
+        previousViewState = {
+            view: 'bento',
+            folderContext: currentFolderContext,
+            searchQuery: searchQuery
+        };
+        currentView = 'preview';
+    } else if (currentView === 'preview') {
+        // Already in preview - update previous state to current folder
+        const folderPath = path.substring(0, path.lastIndexOf('/'));
+        previousViewState = {
+            view: 'bento',
+            folderContext: folderPath || null,
+            searchQuery: ''
+        };
+    } else {
+        // Coming from file tree or other view - determine folder from path
+        const folderPath = path.substring(0, path.lastIndexOf('/'));
+        previousViewState = {
+            view: 'bento',
+            folderContext: folderPath || null,
+            searchQuery: ''
+        };
         currentView = 'preview';
     }
     
@@ -848,15 +914,28 @@ function loadAssetPreview(path, name) {
     const assetPath = path.startsWith('/') ? path : `/${path}`;
     const assetUrl = `${basePath}${assetPath}`;
     
+    // Back button HTML
+    const backButtonHTML = previousViewState ? `
+        <button class="back-button" id="back-button" title="Go back">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            <span>Back</span>
+        </button>
+    ` : '';
+    
     let previewHTML = '';
     
     if (['mp4', 'webm', 'mov'].includes(fileExtension)) {
         previewHTML = `
             <div class="asset-preview">
-                <video controls autoplay>
-                    <source src="${assetUrl}" type="video/${fileExtension === 'mov' ? 'quicktime' : fileExtension}">
-                    Your browser does not support the video tag.
-                </video>
+                ${backButtonHTML}
+                <div class="video-preview-container">
+                    <video controls autoplay playsinline>
+                        <source src="${assetUrl}" type="video/${fileExtension === 'mov' ? 'quicktime' : fileExtension}">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
                 <div class="asset-info">
                     <h3>${escapeHtml(name)}</h3>
                     <p class="asset-path">${escapeHtml(path)}</p>
@@ -869,6 +948,7 @@ function loadAssetPreview(path, name) {
     } else if (['mp3', 'wav', 'ogg', 'm4a'].includes(fileExtension)) {
         previewHTML = `
             <div class="asset-preview">
+                ${backButtonHTML}
                 <audio controls autoplay>
                     <source src="${assetUrl}" type="audio/${fileExtension === 'm4a' ? 'mp4' : fileExtension}">
                     Your browser does not support the audio tag.
@@ -885,6 +965,7 @@ function loadAssetPreview(path, name) {
     } else if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExtension)) {
         previewHTML = `
             <div class="asset-preview">
+                ${backButtonHTML}
                 <div class="image-container">
                     <img src="${assetUrl}" alt="${escapeHtml(name)}" id="preview-image">
                     <a href="${assetUrl}" download="${escapeHtml(name)}" class="download-button-overlay" title="Download Image">
@@ -904,6 +985,7 @@ function loadAssetPreview(path, name) {
     } else {
         previewHTML = `
             <div class="asset-preview">
+                ${backButtonHTML}
                 <div class="asset-info">
                     <h3>${escapeHtml(name)}</h3>
                     <p class="asset-path">${escapeHtml(path)}</p>
@@ -915,6 +997,12 @@ function loadAssetPreview(path, name) {
     
     previewContainer.innerHTML = previewHTML;
     
+    // Setup back button if it exists
+    const backButton = document.getElementById('back-button');
+    if (backButton) {
+        backButton.addEventListener('click', goBack);
+    }
+    
     // Animate preview content with Motion.dev
     const previewContent = previewContainer.querySelector('.asset-preview');
     if (previewContent) {
@@ -923,6 +1011,53 @@ function loadAssetPreview(path, name) {
             { duration: 0.4, easing: 'ease-out' }
         );
     }
+}
+
+// Go back to previous view
+function goBack() {
+    if (!previousViewState) {
+        // Fallback: try to determine folder from current path
+        // This shouldn't happen, but just in case
+        const activeFile = document.querySelector('.file-tree-item.active');
+        if (activeFile) {
+            const path = activeFile.getAttribute('data-path');
+            if (path) {
+                const folderPath = path.substring(0, path.lastIndexOf('/'));
+                currentFolderContext = folderPath || null;
+            }
+        }
+        currentView = 'bento';
+        renderBentoGrid();
+        return;
+    }
+    
+    // Restore previous state
+    currentView = previousViewState.view;
+    currentFolderContext = previousViewState.folderContext;
+    searchQuery = previousViewState.searchQuery || '';
+    
+    // Update search input if it exists
+    const searchInput = document.getElementById('search-input');
+    if (searchInput) {
+        searchInput.value = searchQuery;
+    }
+    
+    // Clear active file selection
+    document.querySelectorAll('.file-tree-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    // Update title
+    const folderName = currentFolderContext ? currentFolderContext.split('/').pop() || currentFolderContext : 'All';
+    document.getElementById('asset-title').textContent = searchQuery 
+        ? `Search: ${searchQuery}` 
+        : currentFolderContext ? `${folderName} Assets` : 'All Assets';
+    
+    // Render bento grid
+    renderBentoGrid();
+    
+    // Clear previous view state
+    previousViewState = null;
 }
 
 // Get file type class for styling
