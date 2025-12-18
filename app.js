@@ -13,17 +13,33 @@ let searchQuery = ''; // Current search query
 document.addEventListener('DOMContentLoaded', async () => {
     await loadManifest();
     renderRootDirectories();
-    setupViewToggle();
     setupNavigation();
     setupSearch();
     animateInitialLoad();
 });
 
+// Get base path for GitHub Pages
+// Use Vite's BASE_URL if available, otherwise detect from pathname
+function getBasePath() {
+    // Try to use Vite's BASE_URL first (available in built files)
+    if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.BASE_URL) {
+        const base = import.meta.env.BASE_URL;
+        return base === '/' ? '' : base.replace(/\/$/, ''); // Remove trailing slash
+    }
+    // Fallback: detect from pathname
+    const pathname = window.location.pathname;
+    if (pathname.includes('/eliza-creative/')) {
+        return '/eliza-creative';
+    }
+    return '';
+}
+
 // Load manifest file
 async function loadManifest() {
     try {
+        const basePath = getBasePath();
         // Try to load manifest from public directory
-        const response = await fetch('/manifest.json');
+        const response = await fetch(`${basePath}/manifest.json`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -75,49 +91,7 @@ function getCategoryFromPath(path) {
     return 'Other';
 }
 
-// Setup view toggle buttons
-function setupViewToggle() {
-    const previewBtn = document.getElementById('preview-view-btn');
-    const bentoBtn = document.getElementById('bento-view-btn');
-    
-    previewBtn.addEventListener('click', () => {
-        currentView = 'preview';
-        previewBtn.classList.add('active');
-        bentoBtn.classList.remove('active');
-        // Clear search when switching to preview
-        const searchInput = document.getElementById('search-input');
-        const searchClear = document.getElementById('search-clear');
-        if (searchInput) {
-            searchInput.value = '';
-            searchQuery = '';
-        }
-        if (searchClear) {
-            searchClear.style.display = 'none';
-        }
-        renderCurrentView();
-    });
-    
-    bentoBtn.addEventListener('click', () => {
-        currentView = 'bento';
-        bentoBtn.classList.add('active');
-        previewBtn.classList.remove('active');
-        // Render bento grid with current folder context
-        renderBentoGrid();
-    });
-}
 
-// Render current view based on state
-function renderCurrentView() {
-    if (currentView === 'bento') {
-        renderBentoGrid();
-    } else {
-        // Preview view is handled by selectFile
-        const previewContainer = document.getElementById('asset-preview');
-        if (previewContainer.innerHTML.includes('bento-grid')) {
-            previewContainer.innerHTML = '<div class="empty-state"><p>Browse assets from the left panel</p></div>';
-        }
-    }
-}
 
 // Get assets from a specific folder path
 function getAssetsFromFolder(folderPath) {
@@ -207,9 +181,11 @@ function renderBentoGrid() {
         gridHTML += '<div class="bento-grid">';
     }
     
+    const basePath = getBasePath();
     assetsToShow.forEach(asset => {
         const ext = asset.name.split('.').pop().toLowerCase();
-        const assetUrl = asset.path.startsWith('/') ? asset.path : `/${asset.path}`;
+        const assetPath = asset.path.startsWith('/') ? asset.path : `/${asset.path}`;
+        const assetUrl = `${basePath}${assetPath}`;
         const type = getFileTypeClass(asset.name);
         
         if (type === 'image') {
@@ -345,8 +321,6 @@ function renderBentoGrid() {
             
             // Otherwise, switch to preview view and load the asset
             currentView = 'preview';
-            document.getElementById('preview-view-btn').classList.add('active');
-            document.getElementById('bento-view-btn').classList.remove('active');
             selectFile(path, name);
         });
     });
@@ -372,8 +346,6 @@ function renderBentoGrid() {
             
             // Otherwise, switch to preview view and load the asset
             currentView = 'preview';
-            document.getElementById('preview-view-btn').classList.add('active');
-            document.getElementById('bento-view-btn').classList.remove('active');
             selectFile(path, name);
         });
     });
@@ -545,8 +517,6 @@ function setupSearch() {
         } else {
             // Switch to bento view when searching
             currentView = 'bento';
-            document.getElementById('preview-view-btn').classList.remove('active');
-            document.getElementById('bento-view-btn').classList.add('active');
             renderBentoGrid();
         }
     });
@@ -569,8 +539,6 @@ function setupSearch() {
             e.preventDefault();
             if (currentView !== 'bento') {
                 currentView = 'bento';
-                document.getElementById('preview-view-btn').classList.remove('active');
-                document.getElementById('bento-view-btn').classList.add('active');
             }
             renderBentoGrid();
         }
@@ -772,10 +740,8 @@ function toggleFolder(element, dirName, children) {
             }
         }, 0);
         
-        // Automatically switch to bento view when expanding a folder
+        // Automatically switch to bento/list view when expanding a folder
         currentView = 'bento';
-        document.getElementById('preview-view-btn').classList.remove('active');
-        document.getElementById('bento-view-btn').classList.add('active');
         renderBentoGrid();
     }
 }
@@ -791,8 +757,6 @@ function selectFile(path, name) {
     // Switch to preview view if in bento view
     if (currentView === 'bento') {
         currentView = 'preview';
-        document.getElementById('preview-view-btn').classList.add('active');
-        document.getElementById('bento-view-btn').classList.remove('active');
     }
     
     // Update active state
@@ -817,9 +781,10 @@ function loadAssetPreview(path, name) {
     previewContainer.innerHTML = '<div class="loading">Loading</div>';
     
     const fileExtension = name.split('.').pop().toLowerCase();
-    // Construct asset URL - use the path directly, ensuring it starts with /
-    // This will work both locally and on GitHub Pages
-    const assetUrl = path.startsWith('/') ? path : `/${path}`;
+    // Construct asset URL - use the path with base path for GitHub Pages
+    const basePath = getBasePath();
+    const assetPath = path.startsWith('/') ? path : `/${path}`;
+    const assetUrl = `${basePath}${assetPath}`;
     
     let previewHTML = '';
     
@@ -946,7 +911,8 @@ async function loadAboutPage() {
     document.getElementById('asset-title').textContent = 'About';
     
     try {
-        const response = await fetch('/about.html');
+        const basePath = getBasePath();
+        const response = await fetch(`${basePath}/about.html`);
         if (!response.ok) throw new Error('Failed to load about page');
         const html = await response.text();
         
@@ -1006,11 +972,10 @@ async function loadBrandKitPage() {
     
     // Switch to preview view
     currentView = 'preview';
-    document.getElementById('preview-view-btn').classList.add('active');
-    document.getElementById('bento-view-btn').classList.remove('active');
     
     try {
-        const response = await fetch('/Brand Kit/index.html');
+        const basePath = getBasePath();
+        const response = await fetch(`${basePath}/Brand Kit/index.html`);
         if (!response.ok) throw new Error('Failed to load brand kit page');
         const html = await response.text();
         
@@ -1058,8 +1023,6 @@ function loadBrowserView() {
     
     // Reset view to preview
     currentView = 'preview';
-    document.getElementById('preview-view-btn').classList.add('active');
-    document.getElementById('bento-view-btn').classList.remove('active');
     
     // Clear folder context
     currentFolderContext = null;
@@ -1103,11 +1066,15 @@ let musicPlayerState = {
 
 // Render music player component
 function renderMusicPlayer(audioAssets) {
-    const playlist = audioAssets.map(asset => ({
-        name: asset.name,
-        path: asset.path.startsWith('/') ? asset.path : `/${asset.path}`,
-        displayName: asset.name.replace(/\.[^/.]+$/, '') // Remove extension
-    }));
+    const basePath = getBasePath();
+    const playlist = audioAssets.map(asset => {
+        const assetPath = asset.path.startsWith('/') ? asset.path : `/${asset.path}`;
+        return {
+            name: asset.name,
+            path: `${basePath}${assetPath}`,
+            displayName: asset.name.replace(/\.[^/.]+$/, '') // Remove extension
+        };
+    });
     
     musicPlayerState.playlist = playlist;
     
@@ -1323,9 +1290,13 @@ function loadTrack(index) {
         }
         
         // Highlight active track in bento grid and audio list
+        // Compare paths without base path
+        const basePath = getBasePath();
+        const trackPathWithoutBase = track.path.replace(basePath, '');
+        const trackPathNormalized = trackPathWithoutBase.startsWith('/') ? trackPathWithoutBase : `/${trackPathWithoutBase}`;
+        
         document.querySelectorAll('.bento-item.audio, .audio-list-item').forEach((item) => {
             const itemPath = item.getAttribute('data-path');
-            const trackPathNormalized = track.path.startsWith('/') ? track.path : `/${track.path}`;
             const itemPathNormalized = itemPath.startsWith('/') ? itemPath : `/${itemPath}`;
             
             if (itemPathNormalized === trackPathNormalized) {

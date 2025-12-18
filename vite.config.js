@@ -1,8 +1,8 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  // For GitHub Pages, set base to your repo name, or '/' for root
-  base: process.env.GITHUB_PAGES ? '/eliza-creative/' : '/',
+  // For GitHub Pages, set base to your repo name
+  base: '/eliza-creative/',
   build: {
     outDir: 'docs',
     assetsDir: 'assets',
@@ -12,6 +12,7 @@ export default defineConfig({
   publicDir: 'public',
   server: {
     port: 3000,
-    open: true
+    open: true,
+    base: '/' // Use root for dev server
   }
 });
