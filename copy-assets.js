@@ -61,6 +61,21 @@ async function copyAssets() {
         console.warn('Error copying About page files:', error.message);
     }
     
+    // Copy manifest.json from public directory to docs
+    try {
+        const manifestSrc = path.join(__dirname, 'public', 'manifest.json');
+        const manifestDest = path.join(DIST_DIR, 'manifest.json');
+        
+        if (await fs.access(manifestSrc).then(() => true).catch(() => false)) {
+            await fs.copyFile(manifestSrc, manifestDest);
+            console.log('✓ manifest.json copied');
+        } else {
+            console.warn('⚠ manifest.json not found in public directory');
+        }
+    } catch (error) {
+        console.warn('Error copying manifest.json:', error.message);
+    }
+    
     // Create .nojekyll file to disable Jekyll processing on GitHub Pages
     try {
         const nojekyllPath = path.join(DIST_DIR, '.nojekyll');
