@@ -5,3 +5,4 @@ public/manifest.json
 manifest.json
 # Allow docs folder for GitHub Pages deployment
 !docs/.nojekyll
+!docs/manifest.json
