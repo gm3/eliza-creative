@@ -16,17 +16,25 @@
                     <h2>ElizaOS Creative</h2>
                 </div>
                 <nav class="browser-nav">
-                    <button class="nav-link" id="nav-browser" data-view="browser">
-                        <span class="nav-icon">📁</span>
-                        <span>Browser</span>
-                    </button>
                     <button class="nav-link" id="nav-about" data-view="about">
                         <span class="nav-icon">ℹ️</span>
                         <span>About</span>
                     </button>
+                    <button class="nav-link" id="nav-showcase" data-view="showcase">
+                        <span class="nav-icon">✨</span>
+                        <span>Showcase</span>
+                    </button>
+                    <button class="nav-link" id="nav-llms" data-view="llms">
+                        <span class="nav-icon">🤖</span>
+                        <span>LLMs</span>
+                    </button>
                 </nav>
             </div>
             <div class="browser-content">
+                <div class="browser-search">
+                    <input type="text" id="search-input" class="search-input" placeholder="Search assets...">
+                    <button id="search-clear" class="search-clear" title="Clear search" style="display: none;">✕</button>
+                </div>
                 <div id="file-tree" class="file-tree">
                     <!-- File tree will be populated by JavaScript -->
                 </div>
@@ -38,10 +46,9 @@
             <div class="main-header">
                 <div class="header-left">
                     <h1 id="asset-title">Select an asset to preview</h1>
-                    <div class="search-container">
-                        <input type="text" id="search-input" class="search-input" placeholder="Search assets...">
-                        <button id="search-clear" class="search-clear" title="Clear search" style="display: none;">✕</button>
-                    </div>
+                </div>
+                <div id="header-music-player" class="header-music-player" style="display: none;">
+                    <!-- Music player will be rendered here -->
                 </div>
             </div>
             <div class="main-content" id="asset-preview">

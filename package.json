@@ -5,8 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "node build-manifest.js && vite",
-    "build": "node build-manifest.js && vite build && node copy-assets.js",
-    "preview": "vite preview"
+    "build": "node build-manifest.js && node generate-thumbnails.js && vite build && node copy-assets.js",
+    "build-no-thumbnails": "node build-manifest.js && vite build && node copy-assets.js",
+    "preview": "vite preview",
+    "manifest": "node build-manifest.js",
+    "thumbnails": "node generate-thumbnails.js"
   },
   "keywords": [
     "elizaos",
@@ -17,7 +20,8 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "vite": "^5.0.0"
+    "vite": "^5.0.0",
+    "sharp": "^0.33.0"
   },
   "dependencies": {
     "motion": "^12.23.26"

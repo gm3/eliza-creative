@@ -8,6 +8,10 @@ let currentView = 'preview'; // 'preview' or 'bento'
 let allAssets = []; // Flat list of all assets for bento view
 let currentFolderContext = null; // Current folder path for filtering bento view
 let searchQuery = ''; // Current search query
+let gridEventListenersAttached = false; // Track if event listeners are already attached
+let itemsPerPage = 30; // Number of items to render initially (reduced for better performance)
+let currentPage = 1; // Current page of items
+let allItemsToRender = []; // All items that should be rendered (for pagination)
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', async () => {
@@ -15,6 +19,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderRootDirectories();
     setupNavigation();
     setupSearch();
+    initializePersistentMusicPlayer();
     animateInitialLoad();
 });
 
@@ -45,6 +50,8 @@ async function loadManifest() {
         }
         manifest = await response.json();
         collectAllAssets(); // Collect assets after manifest loads
+        // Initialize persistent music player after assets are collected
+        initializePersistentMusicPlayer();
     } catch (error) {
         console.error('Error loading manifest:', error);
         const errorMsg = window.location.protocol === 'file:' 
@@ -88,6 +95,7 @@ function getCategoryFromPath(path) {
     if (path.includes('Videos')) return 'Videos';
     if (path.includes('ElizaOS Stickers')) return 'Stickers';
     if (path.includes('Brand Kit')) return 'Brand Kit';
+    if (path.includes('ElizaOS Art')) return 'ElizaOS Art';
     return 'Other';
 }
 
@@ -132,6 +140,10 @@ function filterAssetsBySearch(assets, query) {
 function renderBentoGrid() {
     const previewContainer = document.getElementById('asset-preview');
     
+    // Reset event listener flag when re-rendering (new container created)
+    gridEventListenersAttached = false;
+    currentPage = 1; // Reset to first page
+    
     // Get assets based on current folder context
     let assetsToShow = currentFolderContext ? getAssetsFromFolder(currentFolderContext) : allAssets;
     
@@ -139,6 +151,9 @@ function renderBentoGrid() {
     if (searchQuery) {
         assetsToShow = filterAssetsBySearch(assetsToShow, searchQuery);
     }
+    
+    // Store all items for pagination
+    allItemsToRender = assetsToShow;
     
     const folderName = currentFolderContext ? currentFolderContext.split('/').pop() || currentFolderContext : 'All';
     const titleText = searchQuery 
@@ -154,15 +169,23 @@ function renderBentoGrid() {
         return;
     }
     
+    // Only render first page of items for performance
+    const itemsToRender = assetsToShow.slice(0, itemsPerPage);
+    renderBentoGridItems(itemsToRender, assetsToShow.length, previewContainer);
+}
+
+// Render bento grid items (separated for pagination)
+function renderBentoGridItems(itemsToRender, totalCount, previewContainer) {
+    
     // Check if we're viewing music assets
     const isMusicView = currentFolderContext && (currentFolderContext.includes('Music') || currentFolderContext.includes('/Music'));
-    const audioAssets = assetsToShow.filter(asset => {
+    const audioAssets = itemsToRender.filter(asset => {
         const ext = asset.name.split('.').pop().toLowerCase();
         return ['mp3', 'wav', 'ogg', 'm4a'].includes(ext);
     });
     
     // Check if we should use list layout for audio items
-    const hasAudioItems = assetsToShow.some(asset => {
+    const hasAudioItems = itemsToRender.some(asset => {
         const ext = asset.name.split('.').pop().toLowerCase();
         return ['mp3', 'wav', 'ogg', 'm4a'].includes(ext);
     });
@@ -170,10 +193,7 @@ function renderBentoGrid() {
     
     let gridHTML = '';
     
-    // Add music player if viewing music assets with audio files
-    if (isMusicView && audioAssets.length > 0) {
-        gridHTML += renderMusicPlayer(audioAssets);
-    }
+    // Music player is now persistent in header, no need to render here
     
     if (useListLayout) {
         gridHTML += '<div class="audio-list">';
@@ -182,17 +202,22 @@ function renderBentoGrid() {
     }
     
     const basePath = getBasePath();
-    assetsToShow.forEach(asset => {
+    itemsToRender.forEach(asset => {
         const ext = asset.name.split('.').pop().toLowerCase();
         const assetPath = asset.path.startsWith('/') ? asset.path : `/${asset.path}`;
         const assetUrl = `${basePath}${assetPath}`;
         const type = getFileTypeClass(asset.name);
         
         if (type === 'image') {
+            // Use thumbnail for grid view (fallback to full image if thumbnail doesn't exist)
+            // Convert extension to .jpg for thumbnail
+            const ext = asset.path.split('.').pop();
+            const thumbnailPath = asset.path.replace(`.${ext}`, '.jpg');
+            const thumbnailUrl = `${basePath}/thumbnails${thumbnailPath}`;
             gridHTML += `
                 <div class="bento-item image" data-path="${escapeHtml(asset.path)}" data-name="${escapeHtml(asset.name)}">
                     <div class="image-container-bento">
-                        <img src="${assetUrl}" alt="${escapeHtml(asset.name)}" loading="lazy">
+                        <img class="lazy-image" data-src="${thumbnailUrl}" data-full-src="${assetUrl}" data-fallback="${assetUrl}" alt="${escapeHtml(asset.name)}" loading="lazy" decoding="async" width="400" height="400" onerror="this.onerror=null; this.src=this.dataset.fallback;">
                         <button class="download-button-overlay" data-download-path="${escapeHtml(asset.path)}" data-download-name="${escapeHtml(asset.name)}" title="Download Image">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -212,7 +237,7 @@ function renderBentoGrid() {
             gridHTML += `
                 <div class="bento-item video" data-path="${escapeHtml(asset.path)}" data-name="${escapeHtml(asset.name)}">
                     <div class="video-container">
-                        <video muted loop>
+                        <video muted loop preload="none" loading="lazy">
                             <source src="${assetUrl}" type="video/${ext === 'mov' ? 'quicktime' : ext}">
                         </video>
                         <button class="download-button-overlay" data-download-path="${escapeHtml(asset.path)}" data-download-name="${escapeHtml(asset.name)}" title="Download Video">
@@ -277,220 +302,258 @@ function renderBentoGrid() {
     } else {
         gridHTML += '</div>';
     }
-    previewContainer.innerHTML = gridHTML;
     
-    // Animate items with Motion.dev
+    // Add "Load More" button if there are more items
+    if (totalCount > itemsToRender.length) {
+        const remaining = totalCount - itemsToRender.length;
+        gridHTML += `
+            <div class="load-more-container">
+                <button id="load-more-btn" class="load-more-btn">
+                    Load More (${remaining} remaining)
+                </button>
+            </div>
+        `;
+    }
+    
+    // If this is the first page, replace innerHTML, otherwise append
+    if (currentPage === 1) {
+        previewContainer.innerHTML = gridHTML;
+    } else {
+        // Append to existing grid
+        const existingGrid = previewContainer.querySelector('.bento-grid, .audio-list');
+        if (existingGrid) {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = gridHTML;
+            const newItemsContainer = tempDiv.querySelector('.bento-grid, .audio-list');
+            if (newItemsContainer) {
+                // Extract just the items (not the container)
+                const items = Array.from(newItemsContainer.children);
+                items.forEach(item => existingGrid.appendChild(item));
+            }
+            // Update load more button
+            const oldLoadMore = previewContainer.querySelector('.load-more-container');
+            const newLoadMore = tempDiv.querySelector('.load-more-container');
+            if (oldLoadMore && newLoadMore) {
+                oldLoadMore.replaceWith(newLoadMore);
+            } else if (newLoadMore) {
+                existingGrid.parentElement.appendChild(newLoadMore);
+            }
+        }
+    }
+    
+    // Use CSS for initial animation instead of Motion.dev for better performance with many items
     const items = useListLayout 
         ? document.querySelectorAll('.audio-list-item')
         : document.querySelectorAll('.bento-item');
-    if (items.length > 0) {
-        animate(items,
-            { opacity: [0, 1], scale: [0.9, 1], y: [20, 0] },
-            {
-                duration: 0.4,
-                delay: stagger(0.02),
-                easing: 'ease-out'
-            }
-        );
-    }
-    
-    // Setup music player if present (check again after DOM is updated)
-    const musicPlayerContainer = previewContainer.querySelector('.music-player-container');
-    if (musicPlayerContainer && isMusicView && audioAssets.length > 0) {
-        setupMusicPlayer(audioAssets);
-    }
-    
-    // Add click handlers to audio list items
-    document.querySelectorAll('.audio-list-item').forEach(item => {
-        item.addEventListener('click', () => {
-            const path = item.getAttribute('data-path');
-            const name = item.getAttribute('data-name');
-            
-            // If we have a music player, play it
-            if (isMusicView && audioAssets.length > 0) {
-                const audioIndex = audioAssets.findIndex(a => {
-                    const aPath = a.path.startsWith('/') ? a.path : `/${a.path}`;
-                    const itemPath = path.startsWith('/') ? path : `/${path}`;
-                    return aPath === itemPath;
-                });
-                if (audioIndex !== -1) {
-                    playTrackInPlayer(audioIndex);
-                    return;
-                }
-            }
-            
-            // Otherwise, switch to preview view and load the asset
-            currentView = 'preview';
-            selectFile(path, name);
+    items.forEach((item, index) => {
+        item.style.opacity = '0';
+        item.style.transform = 'translateY(20px) scale(0.9)';
+        // Use requestAnimationFrame for smoother staggered animation
+        requestAnimationFrame(() => {
+            setTimeout(() => {
+                item.style.transition = 'opacity 0.3s ease-out, transform 0.3s ease-out';
+                item.style.opacity = '1';
+                item.style.transform = 'translateY(0) scale(1)';
+            }, index * 10); // Stagger by 10ms per item
         });
     });
     
-    // Add click handlers to bento items (non-audio or non-music view)
-    document.querySelectorAll('.bento-item').forEach(item => {
-        item.addEventListener('click', () => {
-            const path = item.getAttribute('data-path');
-            const name = item.getAttribute('data-name');
-            
-            // If it's an audio file and we have a music player, play it
-            if (isMusicView && item.classList.contains('audio') && audioAssets.length > 0) {
-                const audioIndex = audioAssets.findIndex(a => {
-                    const aPath = a.path.startsWith('/') ? a.path : `/${a.path}`;
-                    const itemPath = path.startsWith('/') ? path : `/${path}`;
-                    return aPath === itemPath;
-                });
-                if (audioIndex !== -1) {
-                    playTrackInPlayer(audioIndex);
-                    return;
-                }
-            }
-            
-            // Otherwise, switch to preview view and load the asset
-            currentView = 'preview';
-            selectFile(path, name);
-        });
-    });
+    // Music player is now persistent in header, no setup needed here
     
-    // Play videos on hover with Motion.dev animation
-    document.querySelectorAll('.bento-item video').forEach(video => {
-        const item = video.closest('.bento-item');
-        const videoContainer = video.closest('.video-container');
+    // Use event delegation for all interactions - single listener on container (only attach once)
+    const gridContainer = previewContainer.querySelector('.bento-grid, .audio-list');
+    if (gridContainer && !gridEventListenersAttached) {
+        gridEventListenersAttached = true;
         
-        // Only handle hover on the video element itself, not the container
-        video.addEventListener('mouseenter', () => {
-            video.play().catch(() => {});
-        });
-        video.addEventListener('mouseleave', () => {
-            // Only pause if not hovering over the download button
-            const downloadBtn = videoContainer?.querySelector('.download-button-overlay');
-            if (!downloadBtn?.matches(':hover')) {
-                video.pause();
-                video.currentTime = 0;
-            }
-        });
-        
-        // Handle item hover for animations (but not video play/pause)
-        item.addEventListener('mouseenter', () => {
-            // Animate hover effect
-            animate(item, 
-                { scale: [1, 1.02], y: [0, -4] },
-                { duration: 0.2, easing: 'ease-out' }
-            );
-        });
-        item.addEventListener('mouseleave', () => {
-            // Animate hover out
-            animate(item,
-                { scale: [1.02, 1], y: [-4, 0] },
-                { duration: 0.2, easing: 'ease-out' }
-            );
-        });
-    });
-    
-    // Add download handlers for video download buttons
-    document.querySelectorAll('.bento-item .video-container .download-button-overlay').forEach(button => {
-        button.addEventListener('click', (e) => {
-            e.stopPropagation(); // Prevent triggering the item click
-            e.preventDefault();
-            const path = button.getAttribute('data-download-path');
-            const name = button.getAttribute('data-download-name');
-            const downloadUrl = path.startsWith('/') ? path : `/${path}`;
-            
-            // Create a temporary anchor element to trigger download
-            const link = document.createElement('a');
-            link.href = downloadUrl;
-            link.download = name;
-            link.style.display = 'none';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        });
-        
-        // Keep video playing when hovering over download button
-        button.addEventListener('mouseenter', () => {
-            const video = button.closest('.video-container')?.querySelector('video');
-            if (video && video.paused) {
+        // Video hover handling
+        let hoverTimeout;
+        gridContainer.addEventListener('mouseenter', (e) => {
+            const video = e.target.closest('.bento-item.video')?.querySelector('video');
+            if (video) {
+                clearTimeout(hoverTimeout);
+                video.load(); // Load video only when hovering
                 video.play().catch(() => {});
             }
-        });
-    });
-    
-    // Add hover animations for non-video items (images and audio)
-    document.querySelectorAll('.bento-item').forEach(item => {
-        // Skip if already has video hover handler
-        if (item.querySelector('video')) return;
+        }, true);
         
-        item.addEventListener('mouseenter', () => {
-            animate(item,
-                { scale: [1, 1.02], y: [0, -4] },
-                { duration: 0.2, easing: 'ease-out' }
-            );
+        gridContainer.addEventListener('mouseleave', (e) => {
+            const video = e.target.closest('.bento-item.video')?.querySelector('video');
+            if (video) {
+                const item = video.closest('.bento-item');
+                const downloadBtn = item?.querySelector('.download-button-overlay');
+                if (!downloadBtn?.matches(':hover')) {
+                    hoverTimeout = setTimeout(() => {
+                        video.pause();
+                        video.currentTime = 0;
+                    }, 100);
+                }
+            }
+        }, true);
+        
+        // Lightweight hover animations using CSS transforms (no Motion.dev)
+        gridContainer.addEventListener('mouseenter', (e) => {
+            const item = e.target.closest('.bento-item');
+            if (item && !item.querySelector('video')) {
+                item.style.transform = 'translateY(-4px) scale(1.02)';
+            }
+        }, true);
+        
+        gridContainer.addEventListener('mouseleave', (e) => {
+            const item = e.target.closest('.bento-item');
+            if (item && !item.querySelector('video')) {
+                item.style.transform = '';
+            }
+        }, true);
+        
+        // Unified click handler for all interactions
+        gridContainer.addEventListener('click', (e) => {
+            // Handle download buttons first
+            const downloadBtn = e.target.closest('.download-button-overlay, .audio-list-download');
+            if (downloadBtn) {
+                e.stopPropagation();
+                e.preventDefault();
+                const path = downloadBtn.getAttribute('data-download-path');
+                const name = downloadBtn.getAttribute('data-download-name');
+                const basePath = getBasePath();
+                const downloadUrl = path.startsWith('/') ? `${basePath}${path}` : `${basePath}/${path}`;
+                
+                // Create a temporary anchor element to trigger download
+                const link = document.createElement('a');
+                link.href = downloadUrl;
+                link.download = name;
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                return;
+            }
+            
+            // Handle item clicks
+            const item = e.target.closest('.bento-item, .audio-list-item');
+            if (item) {
+                const path = item.getAttribute('data-path');
+                const name = item.getAttribute('data-name');
+                
+                // If it's an audio file, find it in global playlist and play it
+                if (item.classList.contains('audio') || item.classList.contains('audio-list-item')) {
+                    const basePath = getBasePath();
+                    const itemPathNormalized = path.startsWith('/') ? path : `/${path}`;
+                    const fullItemPath = `${basePath}${itemPathNormalized}`;
+                    
+                    const globalAudioIndex = musicPlayerState.playlist.findIndex(track => {
+                        return track.path === fullItemPath || track.path.endsWith(itemPathNormalized);
+                    });
+                    
+                    if (globalAudioIndex !== -1) {
+                        playTrackInPlayer(globalAudioIndex);
+                        return;
+                    }
+                }
+                
+                // Otherwise, switch to preview view and load the asset
+                currentView = 'preview';
+                selectFile(path, name);
+            }
         });
-        item.addEventListener('mouseleave', () => {
-            animate(item,
-                { scale: [1.02, 1], y: [-4, 0] },
-                { duration: 0.2, easing: 'ease-out' }
-            );
+    }
+    
+    // Setup "Load More" button
+    const loadMoreBtn = previewContainer.querySelector('#load-more-btn');
+    if (loadMoreBtn) {
+        loadMoreBtn.addEventListener('click', () => {
+            loadMoreItems(previewContainer, totalCount);
         });
+    }
+    
+    // Setup Intersection Observer for lazy image loading
+    setupLazyImageLoading(previewContainer);
+    
+    // Setup Intersection Observer for infinite scroll (optional - loads more when near bottom)
+    setupInfiniteScroll(previewContainer, totalCount);
+}
+
+// Load more items when "Load More" is clicked
+function loadMoreItems(previewContainer, totalCount) {
+    currentPage++;
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const nextItems = allItemsToRender.slice(startIndex, endIndex);
+    
+    if (nextItems.length > 0) {
+        renderBentoGridItems(nextItems, totalCount, previewContainer);
+    }
+}
+
+// Setup infinite scroll using Intersection Observer
+function setupInfiniteScroll(previewContainer, totalCount) {
+    // Only setup if there are more items to load
+    if (allItemsToRender.length <= currentPage * itemsPerPage) {
+        return;
+    }
+    
+    const loadMoreBtn = previewContainer.querySelector('#load-more-btn');
+    if (!loadMoreBtn) return;
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                // Load more when button comes into view
+                loadMoreItems(previewContainer, totalCount);
+            }
+        });
+    }, {
+        rootMargin: '200px' // Start loading 200px before button is visible
     });
     
-    // Add download handlers for image download buttons in bento grid
-    document.querySelectorAll('.bento-item .image-container-bento .download-button-overlay').forEach(button => {
-        button.addEventListener('click', (e) => {
-            e.stopPropagation(); // Prevent triggering the item click
-            e.preventDefault();
-            const path = button.getAttribute('data-download-path');
-            const name = button.getAttribute('data-download-name');
-            const downloadUrl = path.startsWith('/') ? path : `/${path}`;
-            
-            // Create a temporary anchor element to trigger download
-            const link = document.createElement('a');
-            link.href = downloadUrl;
-            link.download = name;
-            link.style.display = 'none';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        });
-    });
+    observer.observe(loadMoreBtn);
+}
+
+// Setup lazy loading for images using Intersection Observer
+function setupLazyImageLoading(container) {
+    const lazyImages = container.querySelectorAll('img.lazy-image[data-src]');
     
-    // Add download handlers for audio download buttons in bento grid
-    document.querySelectorAll('.bento-item .audio-download-btn').forEach(button => {
-        button.addEventListener('click', (e) => {
-            e.stopPropagation(); // Prevent triggering the item click
-            e.preventDefault();
-            const path = button.getAttribute('data-download-path');
-            const name = button.getAttribute('data-download-name');
-            const downloadUrl = path.startsWith('/') ? path : `/${path}`;
-            
-            // Create a temporary anchor element to trigger download
-            const link = document.createElement('a');
-            link.href = downloadUrl;
-            link.download = name;
-            link.style.display = 'none';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+    if ('IntersectionObserver' in window) {
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    // Load thumbnail first (much smaller file size)
+                    const thumbnailSrc = img.getAttribute('data-src');
+                    const fallbackSrc = img.getAttribute('data-fallback');
+                    
+                    // Try to load thumbnail, fallback to full image on error
+                    img.onerror = function() {
+                        if (this.src !== fallbackSrc) {
+                            this.src = fallbackSrc;
+                        }
+                    };
+                    
+                    img.src = thumbnailSrc;
+                    img.classList.remove('lazy-image');
+                    img.removeAttribute('data-src');
+                    
+                    observer.unobserve(img);
+                }
+            });
+        }, {
+            rootMargin: '100px' // Start loading 100px before image enters viewport
         });
-    });
-    
-    // Add download handlers for audio list download buttons
-    document.querySelectorAll('.audio-list-download').forEach(button => {
-        button.addEventListener('click', (e) => {
-            e.stopPropagation(); // Prevent triggering the item click
-            e.preventDefault();
-            const path = button.getAttribute('data-download-path');
-            const name = button.getAttribute('data-download-name');
-            const downloadUrl = path.startsWith('/') ? path : `/${path}`;
-            
-            // Create a temporary anchor element to trigger download
-            const link = document.createElement('a');
-            link.href = downloadUrl;
-            link.download = name;
-            link.style.display = 'none';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+        
+        lazyImages.forEach(img => imageObserver.observe(img));
+    } else {
+        // Fallback for browsers without Intersection Observer
+        lazyImages.forEach(img => {
+            const fallback = img.getAttribute('data-fallback');
+            img.src = img.getAttribute('data-src') || fallback;
+            img.onerror = function() {
+                if (this.src !== fallback) {
+                    this.src = fallback;
+                }
+            };
+            img.classList.remove('lazy-image');
+            img.removeAttribute('data-src');
         });
-    });
+    }
 }
 
 // Setup search functionality
@@ -574,7 +637,7 @@ function renderDirectoryItem(name, children, parentElement, level) {
     const folderPath = name;
     itemElement.setAttribute('data-path', folderPath);
     itemElement.innerHTML = `
-        <span class="folder-icon collapsed">📁</span>
+        <span class="folder-icon collapsed"></span>
         <span>${escapeHtml(name)}</span>
     `;
     
@@ -612,7 +675,7 @@ function toggleFolder(element, dirName, children) {
         // Collapse - remove children
         icon.classList.remove('expanded');
         icon.classList.add('collapsed');
-        icon.textContent = '📁';
+        // Icon is handled by CSS, just update classes
         
         // Clear folder context if this was the active folder
         const folderPath = element.getAttribute('data-path') || dirName;
@@ -670,7 +733,6 @@ function toggleFolder(element, dirName, children) {
         
         icon.classList.remove('collapsed');
         icon.classList.add('expanded');
-        icon.textContent = '📂';
         
         // Render children
         const parent = element.parentElement;
@@ -687,7 +749,7 @@ function toggleFolder(element, dirName, children) {
                 childElement.style.paddingLeft = `${12 + childLevel}px`;
                 childElement.setAttribute('data-path', item.path);
                 childElement.innerHTML = `
-                    <span class="folder-icon collapsed">📁</span>
+                    <span class="folder-icon collapsed"></span>
                     <span>${escapeHtml(item.name)}</span>
                 `;
                 childElement.addEventListener('click', (e) => {
@@ -895,14 +957,13 @@ function setupNavigation() {
             const view = link.getAttribute('data-view');
             if (view === 'about') {
                 loadAboutPage();
-            } else if (view === 'browser') {
-                loadBrowserView();
+            } else if (view === 'showcase') {
+                loadShowcasePage();
+            } else if (view === 'llms') {
+                loadLLMsPage();
             }
         });
     });
-    
-    // Set browser as active by default
-    document.getElementById('nav-browser').classList.add('active');
 }
 
 // Load About page content into main area
@@ -962,6 +1023,181 @@ async function loadAboutPage() {
     } catch (error) {
         console.error('Error loading about page:', error);
         previewContainer.innerHTML = '<div class="empty-state"><p>Error loading about page</p></div>';
+    }
+}
+
+// Load Showcase page content
+async function loadShowcasePage() {
+    const previewContainer = document.getElementById('asset-preview');
+    document.getElementById('asset-title').textContent = 'Showcase';
+    
+    // Clear search
+    searchQuery = '';
+    const searchInput = document.getElementById('search-input');
+    if (searchInput) searchInput.value = '';
+    const searchClear = document.getElementById('search-clear');
+    if (searchClear) searchClear.style.display = 'none';
+    
+    const showcaseHTML = `
+        <div class="showcase-container">
+            <div class="showcase-header">
+                <h2>ElizaOS Creative Projects</h2>
+                <p>Explore projects built with ElizaOS creative assets</p>
+            </div>
+            <div class="showcase-grid" id="showcase-grid">
+                <!-- Projects will be loaded here -->
+                <div class="showcase-item">
+                    <div class="showcase-thumbnail">
+                        <div class="showcase-placeholder">🎨</div>
+                    </div>
+                    <div class="showcase-info">
+                        <h3>Project Name</h3>
+                        <p>Project description goes here. This is a placeholder for showcasing ElizaOS creative projects.</p>
+                        <a href="#" class="showcase-link" target="_blank">View Project →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    previewContainer.innerHTML = showcaseHTML;
+    
+    // Animate showcase items
+    const showcaseItems = previewContainer.querySelectorAll('.showcase-item');
+    if (showcaseItems.length > 0) {
+        animate(showcaseItems,
+            { opacity: [0, 1], y: [20, 0] },
+            { 
+                duration: 0.6,
+                delay: stagger(0.1),
+                easing: 'ease-out'
+            }
+        );
+    }
+}
+
+// Load LLMs page content
+async function loadLLMsPage() {
+    const previewContainer = document.getElementById('asset-preview');
+    document.getElementById('asset-title').textContent = 'LLM Resources';
+    
+    // Clear search
+    searchQuery = '';
+    const searchInput = document.getElementById('search-input');
+    if (searchInput) searchInput.value = '';
+    const searchClear = document.getElementById('search-clear');
+    if (searchClear) searchClear.style.display = 'none';
+    
+    const llmsHTML = `
+        <div class="llms-container">
+            <div class="llms-header">
+                <h2>LLM Tools & Resources</h2>
+                <p>Tools, prompts, and guides for creating art with LLMs</p>
+            </div>
+            
+            <div class="llms-section">
+                <h3>🔗 Tools & Platforms</h3>
+                <div class="llms-links">
+                    <a href="https://openai.com/dall-e" target="_blank" class="llms-link-card">
+                        <div class="llms-link-icon">🎨</div>
+                        <div class="llms-link-info">
+                            <h4>DALL-E</h4>
+                            <p>AI image generation by OpenAI</p>
+                        </div>
+                    </a>
+                    <a href="https://midjourney.com" target="_blank" class="llms-link-card">
+                        <div class="llms-link-icon">🖼️</div>
+                        <div class="llms-link-info">
+                            <h4>Midjourney</h4>
+                            <p>AI art generation platform</p>
+                        </div>
+                    </a>
+                    <a href="https://stability.ai" target="_blank" class="llms-link-card">
+                        <div class="llms-link-icon">⚡</div>
+                        <div class="llms-link-info">
+                            <h4>Stability AI</h4>
+                            <p>Open-source AI image models</p>
+                        </div>
+                    </a>
+                    <a href="https://leonardo.ai" target="_blank" class="llms-link-card">
+                        <div class="llms-link-icon">🎭</div>
+                        <div class="llms-link-info">
+                            <h4>Leonardo.ai</h4>
+                            <p>AI image generation and editing</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="llms-section">
+                <h3>💡 Example Prompts</h3>
+                <div class="llms-prompts">
+                    <div class="llms-prompt-card">
+                        <h4>ElizaOS Character Design</h4>
+                        <code class="llms-prompt-text">A sleek, futuristic AI character design for ElizaOS, featuring a minimalist aesthetic with purple and blue accents, digital art style, high detail, 4k</code>
+                    </div>
+                    <div class="llms-prompt-card">
+                        <h4>Ambient Background</h4>
+                        <code class="llms-prompt-text">Abstract digital landscape with soft gradients, ambient lighting, cyberpunk atmosphere, suitable for background music visualizer, 16:9 aspect ratio</code>
+                    </div>
+                    <div class="llms-prompt-card">
+                        <h4>Brand Identity</h4>
+                        <code class="llms-prompt-text">Modern logo concept for ElizaOS, combining geometric shapes with organic curves, purple and white color scheme, clean and professional, vector style</code>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="llms-section">
+                <h3>📚 How-To Guides</h3>
+                <div class="llms-guides">
+                    <div class="llms-guide-card">
+                        <h4>Getting Started with AI Art</h4>
+                        <p>Learn the basics of prompt engineering and how to create effective prompts for AI image generation.</p>
+                        <ul>
+                            <li>Start with clear subject descriptions</li>
+                            <li>Add style modifiers (art style, mood, lighting)</li>
+                            <li>Specify technical details (resolution, aspect ratio)</li>
+                            <li>Iterate and refine your prompts</li>
+                        </ul>
+                    </div>
+                    <div class="llms-guide-card">
+                        <h4>Creating Consistent Brand Assets</h4>
+                        <p>Tips for maintaining visual consistency across multiple AI-generated assets for your brand.</p>
+                        <ul>
+                            <li>Use consistent color palettes</li>
+                            <li>Define style keywords to reuse</li>
+                            <li>Create a prompt template</li>
+                            <li>Save successful prompts for reference</li>
+                        </ul>
+                    </div>
+                    <div class="llms-guide-card">
+                        <h4>Optimizing for Different Use Cases</h4>
+                        <p>How to tailor your prompts for specific applications like thumbnails, backgrounds, or icons.</p>
+                        <ul>
+                            <li>Thumbnails: Focus on composition and readability</li>
+                            <li>Backgrounds: Consider negative space</li>
+                            <li>Icons: Simplify and emphasize clarity</li>
+                            <li>Social media: Optimize for platform dimensions</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    previewContainer.innerHTML = llmsHTML;
+    
+    // Animate sections
+    const sections = previewContainer.querySelectorAll('.llms-section');
+    if (sections.length > 0) {
+        animate(sections,
+            { opacity: [0, 1], y: [20, 0] },
+            { 
+                duration: 0.6,
+                delay: stagger(0.15),
+                easing: 'ease-out'
+            }
+        );
     }
 }
 
@@ -1061,11 +1297,32 @@ let musicPlayerState = {
     audioElement: null,
     isPlaying: false,
     volume: 1.0, // 0.0 to 1.0
-    isMuted: false
+    isMuted: false,
+    isInitialized: false
 };
 
-// Render music player component
-function renderMusicPlayer(audioAssets) {
+// Initialize persistent music player in header with all audio assets
+function initializePersistentMusicPlayer() {
+    // Get all audio assets
+    const audioAssets = allAssets.filter(asset => {
+        const ext = asset.name.split('.').pop().toLowerCase();
+        return ['mp3', 'wav', 'ogg', 'm4a'].includes(ext);
+    });
+    
+    if (audioAssets.length === 0) {
+        // No audio assets, hide player
+        const playerContainer = document.getElementById('header-music-player');
+        if (playerContainer) playerContainer.style.display = 'none';
+        return;
+    }
+    
+    // Show player container
+    const playerContainer = document.getElementById('header-music-player');
+    if (!playerContainer) return;
+    
+    playerContainer.style.display = 'block';
+    
+    // Render player HTML
     const basePath = getBasePath();
     const playlist = audioAssets.map(asset => {
         const assetPath = asset.path.startsWith('/') ? asset.path : `/${asset.path}`;
@@ -1078,8 +1335,22 @@ function renderMusicPlayer(audioAssets) {
     
     musicPlayerState.playlist = playlist;
     
+    playerContainer.innerHTML = renderMusicPlayerHTML(playlist);
+    
+    // Setup player functionality
+    if (!musicPlayerState.isInitialized) {
+        setupMusicPlayer(audioAssets);
+        musicPlayerState.isInitialized = true;
+    } else {
+        // Re-attach event listeners if player was already initialized
+        reattachMusicPlayerListeners();
+    }
+}
+
+// Render music player HTML (for header)
+function renderMusicPlayerHTML(playlist) {
     return `
-        <div class="music-player-container">
+        <div class="music-player-container header-player">
             <div class="music-player">
                 <div class="music-player-info">
                     <div class="music-player-track-info">
@@ -1104,9 +1375,11 @@ function renderMusicPlayer(audioAssets) {
                         <input type="range" class="music-player-seek" id="music-player-seek" min="0" max="100" value="0">
                         <div class="music-player-time" id="music-player-duration">0:00</div>
                     </div>
-                    <div class="music-player-volume">
+                    <div class="music-player-volume-wrapper">
                         <button class="music-player-btn music-player-volume-btn" id="music-player-mute" title="Mute/Unmute">🔊</button>
-                        <input type="range" class="music-player-volume-slider" id="music-player-volume" min="0" max="100" value="100">
+                        <div class="music-player-volume-expandable" id="music-player-volume-expandable">
+                            <input type="range" class="music-player-volume-slider" id="music-player-volume" min="0" max="100" value="100">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1114,20 +1387,71 @@ function renderMusicPlayer(audioAssets) {
     `;
 }
 
+// Re-attach event listeners for persistent player
+function reattachMusicPlayerListeners() {
+    const audio = document.getElementById('music-player-audio');
+    if (audio && !musicPlayerState.audioElement) {
+        musicPlayerState.audioElement = audio;
+    }
+    
+    // Re-attach all event listeners
+    setupMusicPlayer([]); // Pass empty array since playlist is already set
+}
+
+// renderMusicPlayer function removed - now using persistent header player
+
 // Setup music player functionality
 function setupMusicPlayer(audioAssets) {
     const audio = document.getElementById('music-player-audio');
     if (!audio) return;
     
-    musicPlayerState.audioElement = audio;
-    musicPlayerState.currentTrackIndex = 0;
+    // Only set audio element if not already set (preserve across navigation)
+    if (!musicPlayerState.audioElement) {
+        musicPlayerState.audioElement = audio;
+    } else {
+        // Update reference if element was recreated
+        musicPlayerState.audioElement = audio;
+    }
     
-    // Load first track
-    loadTrack(0);
+    // Only load first track if playlist is empty or we're initializing
+    if (musicPlayerState.playlist.length > 0 && musicPlayerState.currentTrackIndex === 0 && !musicPlayerState.isInitialized) {
+        loadTrack(0);
+    }
     
-    // Volume controls
+    // Volume controls with expand/collapse
     const volumeSlider = document.getElementById('music-player-volume');
     const muteBtn = document.getElementById('music-player-mute');
+    const volumeExpandable = document.getElementById('music-player-volume-expandable');
+    
+    // Toggle volume slider visibility on mute button click (hold or hover)
+    if (muteBtn && volumeExpandable) {
+        let volumeTimeout;
+        
+        muteBtn.addEventListener('mouseenter', () => {
+            clearTimeout(volumeTimeout);
+            volumeExpandable.classList.add('expanded');
+        });
+        
+        muteBtn.addEventListener('mouseleave', () => {
+            volumeTimeout = setTimeout(() => {
+                volumeExpandable.classList.remove('expanded');
+            }, 500); // Hide after 500ms of mouse leave
+        });
+        
+        // Keep expanded when hovering over the slider
+        if (volumeSlider) {
+            volumeSlider.addEventListener('mouseenter', () => {
+                clearTimeout(volumeTimeout);
+                volumeExpandable.classList.add('expanded');
+            });
+            
+            volumeSlider.addEventListener('mouseleave', () => {
+                volumeTimeout = setTimeout(() => {
+                    volumeExpandable.classList.remove('expanded');
+                }, 500);
+            });
+        }
+    }
     
     if (volumeSlider) {
         volumeSlider.addEventListener('input', (e) => {

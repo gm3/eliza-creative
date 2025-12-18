@@ -1,94 +1,324 @@
-# ElizaOS Creative Asset Browser
+# ElizaOS Creative Asset Browser - Development Guide
 
-A sleek, dark-mode frontend for browsing and previewing creative assets in the ElizaOS Creative Asset Library.
+A dark-mode, sleek frontend application for exploring and managing the ElizaOS Creative Asset Library. This browser dynamically loads assets from a generated manifest and provides an intuitive interface for browsing music, videos, images, and other creative assets.
 
-## Features
+## 🚀 Quick Start
 
-- 🎨 **Dark Mode UI** - Slim, sleek, modern design
-- 📁 **File Browser** - Left panel with expandable folder tree
-- 🎵 **Audio Preview** - Play MP3 and other audio files
-- 🎬 **Video Preview** - Watch MP4 and other video files
-- 🖼️ **Image Preview** - View JPG, PNG, and other image files
-- 🚀 **Fast Navigation** - Quick access to all assets
-- 📦 **GitHub Pages Ready** - Static build with Vite
+### Prerequisites
+- Node.js (v16 or higher)
+- npm or yarn
 
-## Setup
+### Installation
+```bash
+npm install
+```
 
-1. **Install dependencies:**
+### Development
+```bash
+npm run dev
+```
+This will:
+1. Generate/update the `manifest.json` file by scanning asset directories
+2. Start the Vite development server on `http://localhost:3000`
+3. Automatically reload when you make code changes
+
+### Building for Production
+```bash
+npm run build
+```
+This will:
+1. Generate/update the `manifest.json` file
+2. Build the application with Vite (outputs to `/docs`)
+3. Copy all asset directories to `/docs`
+4. Copy `manifest.json` to `/docs`
+5. Create `.nojekyll` file for GitHub Pages
+
+### Preview Production Build
+```bash
+npm run preview
+```
+Preview the production build locally before deploying.
+
+### Regenerate Manifest Only
+```bash
+npm run manifest
+```
+Manually regenerate the `manifest.json` file without building.
+
+---
+
+## 📁 Project Structure
+
+```
+eliza-creative/
+├── index.html              # Main HTML entry point
+├── app.js                  # Frontend JavaScript (SPA logic, file tree, asset preview)
+├── styles.css              # Dark mode styling
+├── about.html              # About page content
+├── about.js                # About page animations
+├── build-manifest.js       # Script to generate manifest.json from asset directories
+├── copy-assets.js          # Script to copy assets to /docs after build
+├── vite.config.js          # Vite build configuration
+├── public/
+│   └── manifest.json       # Generated file manifest (gitignored)
+├── docs/                   # Build output (for GitHub Pages)
+│   ├── index.html
+│   ├── assets/
+│   ├── manifest.json
+│   ├── Music/
+│   ├── Videos/
+│   ├── ElizaOS Stickers/
+│   └── Brand Kit/
+└── [Asset Directories]     # Music/, Videos/, etc.
+```
+
+---
+
+## 🔄 How It Works
+
+### Dynamic Asset Loading
+
+The browser uses a **manifest-based system** to dynamically load and display assets:
+
+1. **Manifest Generation** (`build-manifest.js`):
+   - Scans asset directories: `Music/`, `Videos/`, `ElizaOS Stickers/`, `Brand Kit/`
+   - Recursively builds a JSON tree structure
+   - Writes `manifest.json` to `public/` directory
+
+2. **Frontend Loading** (`app.js`):
+   - Fetches `manifest.json` on page load
+   - Dynamically renders file tree in left panel
+   - Renders asset previews/bento grid in main panel
+   - No hardcoded file lists - everything is data-driven
+
+3. **Asset Display**:
+   - **File Tree**: Hierarchical folder structure with expand/collapse
+   - **Bento Grid**: Visual grid layout for images and videos
+   - **Audio List**: Compact list view for music folders with integrated player
+   - **Search**: Live filtering across all assets by name and path
+
+### Adding New Assets
+
+**The system automatically detects new assets** - just follow these steps:
+
+1. **Add your files** to the appropriate directory:
+   - Music files → `Music/` (or subfolders)
+   - Videos → `Videos/`
+   - Images → `ElizaOS Stickers/` (or create new folder)
+   - Brand assets → `Brand Kit/`
+
+2. **For local development:**
    ```bash
-   npm install
-   ```
-
-2. **Build the manifest and start dev server:**
-   ```bash
-   npm run build
    npm run dev
    ```
+   The manifest regenerates automatically. Refresh your browser to see new assets.
 
-3. **Open in browser:**
-   Navigate to `http://localhost:3000`
+3. **For production (GitHub Pages):**
+   ```bash
+   npm run build
+   git add .
+   git commit -m "Add new assets"
+   git push
+   ```
+   The build process will:
+   - Regenerate manifest with new files
+   - Copy new assets to `/docs`
+   - Update `docs/manifest.json`
 
-## Development
+### Adding New Asset Directories
 
-The app uses Vite for development and building. The build process:
-1. Scans your asset directories (`Music`, `Videos`, `ElizaOS Stickers`)
-2. Generates a `manifest.json` file with the file structure
-3. Builds the static site for deployment
+If you create a new top-level directory (e.g., `Art/`, `Fonts/`), update `build-manifest.js`:
 
-### Build Commands
+```javascript
+const ASSET_DIRS = ['Music', 'Videos', 'ElizaOS Stickers', 'Brand Kit', 'Art'];
+```
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production (generates manifest + builds site)
-- `npm run preview` - Preview production build locally
+Then rebuild:
+```bash
+npm run build
+```
 
-## Deployment to GitHub Pages
+---
 
-The repository includes a GitHub Actions workflow that automatically:
-1. Builds the manifest from your asset directories
-2. Builds the static site with Vite
-3. Copies all asset files to the dist folder
-4. Deploys to GitHub Pages
+## 🎨 Features
 
-Just push to the `main` branch and the workflow will handle deployment.
+### File Browser (Left Panel)
+- Hierarchical folder tree
+- Expand/collapse folders
+- Click folders to view contents in bento grid
+- Click files to preview
 
-### Manual Deployment
+### Asset Preview (Main Panel)
+- **Images**: Full preview with download button overlay
+- **Videos**: Playback with hover-to-play in grid, download button
+- **Audio**: Integrated music player with playlist, controls, volume
+- **Search**: Live search with results in bento view
 
-If you prefer to deploy manually:
+### Music Player
+- Playlist of all audio files in current folder
+- Play/pause, previous/next track
+- Seek bar with time display
+- Volume control (slider + mute)
+- Download current track
+- Click any audio item to jump to that track
 
-1. Build the project:
+### View Modes
+- **Bento Grid**: Visual cards for images/videos
+- **Audio List**: Compact horizontal list for music
+- **Preview**: Individual asset view
+- Automatically switches based on folder content
+
+### Navigation
+- **Browser**: Default file browser view
+- **About**: Information about the site
+- **Brand Kit**: Brand guidelines and assets (loads dynamically)
+
+---
+
+## 🛠️ Development Workflow
+
+### Making Code Changes
+
+1. **Edit files** (`app.js`, `styles.css`, `index.html`, etc.)
+2. **Development server** automatically reloads (via Vite HMR)
+3. **Test locally** at `http://localhost:3000`
+
+### Adding New Features
+
+1. **Frontend logic**: Edit `app.js`
+2. **Styling**: Edit `styles.css`
+3. **HTML structure**: Edit `index.html`
+4. **Animations**: Uses Motion.dev library (already imported)
+
+### Testing Production Build
+
+1. Run `npm run build`
+2. Run `npm run preview`
+3. Test at the preview URL
+4. Check `/docs` folder to verify all assets copied correctly
+
+---
+
+## 📦 Deployment (GitHub Pages)
+
+### Setup
+1. Repository settings → Pages
+2. Source: Deploy from a branch
+3. Branch: `main` (or `master`)
+4. Folder: `/docs`
+
+### Deployment Process
+
+1. **Make changes** (code or assets)
+2. **Build**:
    ```bash
    npm run build
    ```
-
-2. Copy your asset directories to `dist/`:
+3. **Commit and push**:
    ```bash
-   cp -r Music dist/
-   cp -r Videos dist/
-   cp -r "ElizaOS Stickers" dist/
+   git add .
+   git commit -m "Update assets and rebuild"
+   git push
    ```
+4. **GitHub Pages** automatically deploys from `/docs` folder
+5. Site available at: `https://[username].github.io/eliza-creative/`
 
-3. Push the `dist` folder contents to the `gh-pages` branch
+### Important Notes
 
-## File Structure
+- **Base Path**: Configured as `/eliza-creative/` in `vite.config.js`
+- **Manifest**: Must be in `/docs/manifest.json` (handled by build)
+- **Assets**: All asset directories copied to `/docs` during build
+- **Jekyll**: Disabled via `.nojekyll` file (auto-created)
 
-```
-├── index.html          # Main HTML structure
-├── styles.css          # Dark mode styling
-├── app.js              # Frontend JavaScript logic
-├── vite.config.js      # Vite configuration
-├── build-manifest.js   # Script to generate file manifest
-├── public/             # Public assets (manifest.json goes here)
-└── package.json        # Dependencies
-```
+---
 
-## Supported File Types
+## 🔧 Configuration
 
-- **Audio:** MP3, WAV, OGG, M4A
-- **Video:** MP4, WebM, MOV
-- **Images:** JPG, JPEG, PNG, GIF, WebP
+### Vite Config (`vite.config.js`)
+- **Base path**: `/eliza-creative/` (for GitHub Pages)
+- **Output**: `docs/` directory
+- **Public dir**: `public/` (manifest.json location)
 
-## How It Works
+### Manifest Generation (`build-manifest.js`)
+- **Scanned directories**: `ASSET_DIRS` array
+- **Output**: `public/manifest.json` and root `manifest.json`
+- **File types**: Automatically detects images, audio, video
 
-Instead of a backend API, the app uses a pre-generated `manifest.json` file that contains the complete file structure. This manifest is generated at build time by scanning your asset directories. The frontend loads this manifest and builds the file tree from it.
+### Asset Copying (`copy-assets.js`)
+- **Copies**: All asset directories to `/docs`
+- **Also copies**: `about.html`, `about.js`, `manifest.json`
+- **Creates**: `.nojekyll` file
 
-This approach works perfectly with GitHub Pages since it only serves static files - no server required!
+---
+
+## 🐛 Troubleshooting
+
+### Manifest not loading
+- **Check**: `docs/manifest.json` exists after build
+- **Verify**: `.gitignore` allows `!docs/manifest.json`
+- **Rebuild**: Run `npm run build` again
+
+### Assets not appearing
+- **Regenerate manifest**: `npm run manifest`
+- **Check directory**: Ensure files are in scanned directories
+- **Rebuild**: `npm run build`
+
+### 404 errors on GitHub Pages
+- **Base path**: Verify `vite.config.js` has correct `base` setting
+- **File paths**: Check browser console for actual requested URLs
+- **Rebuild**: Ensure latest build is committed and pushed
+
+### Development server issues
+- **Port conflict**: Change port in `vite.config.js`
+- **Manifest missing**: Run `npm run manifest` first
+- **Clear cache**: Delete `node_modules/.vite` if needed
+
+---
+
+## 📝 Scripts Reference
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start development server (auto-regenerates manifest) |
+| `npm run build` | Build for production (generates manifest, builds, copies assets) |
+| `npm run preview` | Preview production build locally |
+| `npm run manifest` | Regenerate manifest.json only |
+
+---
+
+## 🎯 Key Concepts
+
+- **Dynamic**: No hardcoded file lists - everything comes from manifest
+- **SPA**: Single-page application - no full page reloads
+- **Base Path Aware**: Handles GitHub Pages subdirectory correctly
+- **Asset Types**: Automatically detects and handles images, audio, video
+- **Responsive**: Adapts layout based on content type (bento vs list)
+
+---
+
+## 🤝 Contributing
+
+When contributing to the browser:
+
+1. **Follow existing patterns** in `app.js` and `styles.css`
+2. **Test locally** with `npm run dev`
+3. **Build before committing** to verify production build works
+4. **Keep it simple** - prefer straightforward solutions
+5. **Document changes** in code comments
+
+---
+
+## 📚 Dependencies
+
+- **Vite**: Build tool and dev server
+- **Motion.dev**: Animation library for smooth UI transitions
+
+---
+
+## 🔗 Related Files
+
+- `README.md` - Main repository README (asset library overview)
+- `package.json` - Project metadata and scripts
+- `vite.config.js` - Build configuration
+- `build-manifest.js` - Manifest generation script
+- `copy-assets.js` - Asset copying script

@@ -6,8 +6,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Directories to copy to docs
-const ASSET_DIRS = ['Music', 'Videos', 'ElizaOS Stickers', 'Brand Kit'];
+const ASSET_DIRS = ['Music', 'Videos', 'ElizaOS Stickers', 'Brand Kit', 'ElizaOS Art'];
 const DIST_DIR = path.join(__dirname, 'docs');
+const THUMBNAILS_DIR = path.join(__dirname, 'thumbnails');
 
 // Recursively copy directory
 async function copyDirectory(src, dest) {
@@ -74,6 +75,17 @@ async function copyAssets() {
         }
     } catch (error) {
         console.warn('Error copying manifest.json:', error.message);
+    }
+    
+    // Copy thumbnails directory if it exists
+    try {
+        await fs.access(THUMBNAILS_DIR);
+        const thumbnailsDest = path.join(DIST_DIR, 'thumbnails');
+        console.log('Copying thumbnails...');
+        await copyDirectory(THUMBNAILS_DIR, thumbnailsDest);
+        console.log('✓ Thumbnails copied successfully');
+    } catch (error) {
+        console.warn('Thumbnails directory not found, skipping...');
     }
     
     // Create .nojekyll file to disable Jekyll processing on GitHub Pages

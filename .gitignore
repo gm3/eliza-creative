@@ -3,6 +3,8 @@ node_modules/
 *.log
 public/manifest.json
 manifest.json
+thumbnails/
 # Allow docs folder for GitHub Pages deployment
 !docs/.nojekyll
 !docs/manifest.json
+!docs/thumbnails/

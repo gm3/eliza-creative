@@ -389,6 +389,11 @@
   ],
   "Videos": [
     {
+      "name": "babylon_hoverboard_irerubs.mp4",
+      "type": "file",
+      "path": "/Videos/babylon_hoverboard_irerubs.mp4"
+    },
+    {
       "name": "BlackAndWhite.mp4",
       "type": "file",
       "path": "/Videos/BlackAndWhite.mp4"
@@ -407,6 +412,11 @@
       "name": "ElizaSnowboard.mp4",
       "type": "file",
       "path": "/Videos/ElizaSnowboard.mp4"
+    },
+    {
+      "name": "lv_7345980022383004934_20251215201441.mp4",
+      "type": "file",
+      "path": "/Videos/lv_7345980022383004934_20251215201441.mp4"
     },
     {
       "name": "TrashJoe.mp4",
@@ -456,6 +466,289 @@
       "name": "index.html",
       "type": "file",
       "path": "/Brand Kit/index.html"
+    }
+  ],
+  "ElizaOS Art": [
+    {
+      "name": "Babylon",
+      "type": "directory",
+      "path": "/ElizaOS Art/Babylon",
+      "children": [
+        {
+          "name": "openart-image_5bsuUxyX_1765768250651_raw.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Babylon/openart-image_5bsuUxyX_1765768250651_raw.png"
+        },
+        {
+          "name": "openart-image_81LS9zIo_1765768250783_raw.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Babylon/openart-image_81LS9zIo_1765768250783_raw.png"
+        },
+        {
+          "name": "openart-image_e6mtJGMz_1765768465591_raw.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Babylon/openart-image_e6mtJGMz_1765768465591_raw.png"
+        },
+        {
+          "name": "openart-image_Km-diQmD_1765768486397_raw.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Babylon/openart-image_Km-diQmD_1765768486397_raw.png"
+        },
+        {
+          "name": "openart-image_q9GiXoAW_1765768483737_raw.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Babylon/openart-image_q9GiXoAW_1765768483737_raw.png"
+        }
+      ]
+    },
+    {
+      "name": "Orange",
+      "type": "directory",
+      "path": "/ElizaOS Art/Orange",
+      "children": [
+        {
+          "name": "01a26544-e0b4-4292-bb09-72c64c27c6e8.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Orange/01a26544-e0b4-4292-bb09-72c64c27c6e8.png"
+        },
+        {
+          "name": "040f73cb-5d41-4213-9e4d-3894cf3dbaf3.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Orange/040f73cb-5d41-4213-9e4d-3894cf3dbaf3.png"
+        },
+        {
+          "name": "057669e1-aa33-4b34-9ff9-d21acf572514.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Orange/057669e1-aa33-4b34-9ff9-d21acf572514.png"
+        },
+        {
+          "name": "088d03fc-2934-44f6-b293-636eb0b46850.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Orange/088d03fc-2934-44f6-b293-636eb0b46850.png"
+        },
+        {
+          "name": "107ec753-9d52-45be-933a-90d47cb2f3aa.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Orange/107ec753-9d52-45be-933a-90d47cb2f3aa.png"
+        },
+        {
+          "name": "14fba0aa-538a-4a73-9494-ea5915ff535b.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Orange/14fba0aa-538a-4a73-9494-ea5915ff535b.png"
+        },
+        {
+          "name": "227de6f2-c3fd-48db-b1bf-d6125a916d9e.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Orange/227de6f2-c3fd-48db-b1bf-d6125a916d9e.png"
+        },
+        {
+          "name": "25b7dbf1-779c-43f7-adb3-a02a4435c281.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Orange/25b7dbf1-779c-43f7-adb3-a02a4435c281.png"
+        },
+        {
+          "name": "2ec618a2-40c5-475f-b523-255ea1196850.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Orange/2ec618a2-40c5-475f-b523-255ea1196850.png"
+        },
+        {
+          "name": "32c503fd-2cf7-41c7-849d-099bab85875c.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Orange/32c503fd-2cf7-41c7-849d-099bab85875c.png"
+        },
+        {
+          "name": "62b6c3fa-e319-47b1-bd1e-25440e674c33.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Orange/62b6c3fa-e319-47b1-bd1e-25440e674c33.png"
+        },
+        {
+          "name": "64acb5e0-9129-4584-91d2-d70ff6e28d25.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Orange/64acb5e0-9129-4584-91d2-d70ff6e28d25.png"
+        },
+        {
+          "name": "64decbec-0a93-4378-abbe-309821fd7096.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Orange/64decbec-0a93-4378-abbe-309821fd7096.png"
+        },
+        {
+          "name": "653d0038-6861-47b0-909b-8069921a3755.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Orange/653d0038-6861-47b0-909b-8069921a3755.png"
+        },
+        {
+          "name": "6f4a7599-3fc9-4ff9-b134-f40c72145ee7.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Orange/6f4a7599-3fc9-4ff9-b134-f40c72145ee7.png"
+        },
+        {
+          "name": "8d615970-1813-4d1c-b14b-44305a08eaab.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Orange/8d615970-1813-4d1c-b14b-44305a08eaab.png"
+        },
+        {
+          "name": "9ff8a721-8e61-47cb-a5d7-8c47a6f44cf5.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Orange/9ff8a721-8e61-47cb-a5d7-8c47a6f44cf5.png"
+        },
+        {
+          "name": "a1ac7924-2364-45ee-9372-a8e2bf6ddd61.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Orange/a1ac7924-2364-45ee-9372-a8e2bf6ddd61.png"
+        },
+        {
+          "name": "a1bdc843-5556-4c10-8f44-3576d0e27d6d.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Orange/a1bdc843-5556-4c10-8f44-3576d0e27d6d.png"
+        },
+        {
+          "name": "b5dc2570-205c-4473-8eb7-06bd114c08bc.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Orange/b5dc2570-205c-4473-8eb7-06bd114c08bc.png"
+        },
+        {
+          "name": "c4537f1d-4ef3-4d2a-9a29-d2a3234d8020.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Orange/c4537f1d-4ef3-4d2a-9a29-d2a3234d8020.png"
+        },
+        {
+          "name": "d02a9e63-9160-4451-af3d-1fc3228ba5d0.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Orange/d02a9e63-9160-4451-af3d-1fc3228ba5d0.png"
+        },
+        {
+          "name": "d2c74db2-eb60-4e9c-9346-26a21cfee812.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Orange/d2c74db2-eb60-4e9c-9346-26a21cfee812.png"
+        },
+        {
+          "name": "d3b034e0-243b-4c51-aa4c-82380597f598.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Orange/d3b034e0-243b-4c51-aa4c-82380597f598.png"
+        },
+        {
+          "name": "ElizaOS_IrieRubs.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Orange/ElizaOS_IrieRubs.png"
+        },
+        {
+          "name": "ElizaPhoneBoothIrie.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Orange/ElizaPhoneBoothIrie.png"
+        },
+        {
+          "name": "ElizaSmokingOrange.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Orange/ElizaSmokingOrange.png"
+        },
+        {
+          "name": "ElizaStandingOrange.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Orange/ElizaStandingOrange.png"
+        },
+        {
+          "name": "fd111ab3-3691-4935-8cc5-725f9afed294.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Orange/fd111ab3-3691-4935-8cc5-725f9afed294.png"
+        },
+        {
+          "name": "fffbd53d-2067-4cfa-9636-370f66f0fc5a.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Orange/fffbd53d-2067-4cfa-9636-370f66f0fc5a.png"
+        },
+        {
+          "name": "MDMnvest_LofiElizaXmas.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Orange/MDMnvest_LofiElizaXmas.png"
+        },
+        {
+          "name": "YOU_THOUGHT_CHATGPT_WAS_THE_ENDGAME_IT_WAS_JUST_THE_TUTORIAL..png",
+          "type": "file",
+          "path": "/ElizaOS Art/Orange/YOU_THOUGHT_CHATGPT_WAS_THE_ENDGAME_IT_WAS_JUST_THE_TUTORIAL..png"
+        }
+      ]
+    },
+    {
+      "name": "Posters",
+      "type": "directory",
+      "path": "/ElizaOS Art/Posters",
+      "children": [
+        {
+          "name": "36599d49-81cd-4aa0-ab6d-ebb13c1cf62c.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Posters/36599d49-81cd-4aa0-ab6d-ebb13c1cf62c.png"
+        },
+        {
+          "name": "3df9b51b-bdd1-41a2-bc8c-b4f1002f6afa.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Posters/3df9b51b-bdd1-41a2-bc8c-b4f1002f6afa.png"
+        },
+        {
+          "name": "4f2dcec0-a978-4249-8425-5044aaa5fd65.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Posters/4f2dcec0-a978-4249-8425-5044aaa5fd65.png"
+        },
+        {
+          "name": "79d90bed-dabd-4f9e-8b5d-8630a3e17d36.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Posters/79d90bed-dabd-4f9e-8b5d-8630a3e17d36.png"
+        },
+        {
+          "name": "87bc278b-309f-45c0-837b-8e900abe68f3.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Posters/87bc278b-309f-45c0-837b-8e900abe68f3.png"
+        },
+        {
+          "name": "8f74eb4c-32f0-4c82-9254-21ecd2ef47ed.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Posters/8f74eb4c-32f0-4c82-9254-21ecd2ef47ed.png"
+        },
+        {
+          "name": "a872e7f7-0fbe-457f-b434-aab8823e4bf5.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Posters/a872e7f7-0fbe-457f-b434-aab8823e4bf5.png"
+        },
+        {
+          "name": "c854110b-2433-4199-a6ff-896f230f9c21.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Posters/c854110b-2433-4199-a6ff-896f230f9c21.png"
+        },
+        {
+          "name": "de986ddf-ad28-4cf6-b17d-123c19a6c33e.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Posters/de986ddf-ad28-4cf6-b17d-123c19a6c33e.png"
+        },
+        {
+          "name": "openart-83f43f2ebe4e440f96cf4cb5ccd3217b_raw.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Posters/openart-83f43f2ebe4e440f96cf4cb5ccd3217b_raw.png"
+        },
+        {
+          "name": "openart-image_B4vsTYrm_1765765936574_raw.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Posters/openart-image_B4vsTYrm_1765765936574_raw.png"
+        },
+        {
+          "name": "openart-image_kNEs4_Jz_1765767721093_raw.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Posters/openart-image_kNEs4_Jz_1765767721093_raw.png"
+        },
+        {
+          "name": "openart-image_UCF1VZ2g_1765766465467_raw.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Posters/openart-image_UCF1VZ2g_1765766465467_raw.png"
+        },
+        {
+          "name": "openart-image_UkZmQ0vF_1765766633502_raw.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Posters/openart-image_UkZmQ0vF_1765766633502_raw.png"
+        },
+        {
+          "name": "openart-image_XyozMq7s_1765767729078_raw.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Posters/openart-image_XyozMq7s_1765767729078_raw.png"
+        }
+      ]
     }
   ]
 }

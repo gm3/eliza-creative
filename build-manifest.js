@@ -6,7 +6,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Directories to include in the manifest
-const ASSET_DIRS = ['Music', 'Videos', 'ElizaOS Stickers', 'Brand Kit'];
+const ASSET_DIRS = ['Music', 'Videos', 'ElizaOS Stickers', 'Brand Kit', 'ElizaOS Art'];
 
 // Recursively scan directory and build file tree
 async function scanDirectory(dirPath, basePath = '') {
