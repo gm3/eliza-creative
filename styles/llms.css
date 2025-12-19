@@ -1,0 +1,153 @@
+/* ============================================
+   LLMs Page Styles
+   ============================================ */
+
+.main-content .llms-container {
+    padding: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.llms-header {
+    margin-bottom: 40px;
+}
+
+.llms-header h2 {
+    font-size: 32px;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+}
+
+.llms-header p {
+    color: var(--text-secondary);
+    font-size: 16px;
+}
+
+.llms-section {
+    margin-bottom: 48px;
+}
+
+.llms-section h3 {
+    font-size: 24px;
+    margin-bottom: 24px;
+    color: var(--text-primary);
+}
+
+.llms-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 16px;
+}
+
+.llms-link-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    text-decoration: none;
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.llms-link-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+    text-decoration: none;
+}
+
+.llms-link-icon {
+    font-size: 32px;
+    flex-shrink: 0;
+}
+
+.llms-link-info h4 {
+    font-size: 16px;
+    margin-bottom: 4px;
+    color: var(--text-primary);
+}
+
+.llms-link-info p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.llms-prompts {
+    display: grid;
+    gap: 20px;
+}
+
+.llms-prompt-card {
+    padding: 20px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+}
+
+.llms-prompt-card h4 {
+    font-size: 18px;
+    margin-bottom: 12px;
+    color: var(--text-primary);
+}
+
+.llms-prompt-text {
+    display: block;
+    padding: 16px;
+    background: var(--bg-tertiary);
+    border-radius: 6px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.llms-guides {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+}
+
+.llms-guide-card {
+    padding: 24px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+}
+
+.llms-guide-card h4 {
+    font-size: 20px;
+    margin-bottom: 12px;
+    color: var(--text-primary);
+}
+
+.llms-guide-card p {
+    color: var(--text-secondary);
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 16px;
+}
+
+.llms-guide-card ul {
+    list-style: none;
+    padding: 0;
+}
+
+.llms-guide-card li {
+    padding: 8px 0;
+    padding-left: 24px;
+    color: var(--text-secondary);
+    font-size: 14px;
+    position: relative;
+}
+
+.llms-guide-card li:before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+}

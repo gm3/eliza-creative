@@ -32,12 +32,16 @@
                         <span class="nav-icon">🎨</span>
                         <span>Brand Kit</span>
                     </button>
+                    <button class="nav-link" id="nav-news" data-view="news">
+                        <span class="nav-icon">📰</span>
+                        <span>News</span>
+                    </button>
                 </nav>
             </div>
             <div class="browser-content">
                 <div class="browser-search">
                     <input type="text" id="search-input" class="search-input" placeholder="Search assets...">
-                    <button id="search-clear" class="search-clear" title="Clear search" style="display: none;">✕</button>
+                    <button id="search-clear" class="search-clear hidden" title="Clear search">✕</button>
                 </div>
                 <div id="file-tree" class="file-tree">
                     <!-- File tree will be populated by JavaScript -->
@@ -51,7 +55,7 @@
                 <div class="header-left">
                     <h1 id="asset-title">Select an asset to preview</h1>
                 </div>
-                <div id="header-music-player" class="header-music-player" style="display: none;">
+                <div id="header-music-player" class="header-music-player hidden">
                     <!-- Music player will be rendered here -->
                 </div>
             </div>

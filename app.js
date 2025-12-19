@@ -59,7 +59,7 @@ async function loadManifest() {
             ? 'Please run "npm run dev" to start the development server. Opening HTML directly from file:// is not supported.'
             : 'Error loading file manifest. Make sure to run "npm run build" first to generate manifest.json';
         document.getElementById('file-tree').innerHTML = 
-            `<div class="file-tree-item" style="color: #ff6b6b; padding: 20px;">${errorMsg}</div>`;
+            `<div class="file-tree-item file-tree-error">${errorMsg}</div>`;
     }
 }
 
@@ -682,9 +682,9 @@ function setupSearch() {
         
         // Show/hide clear button
         if (searchQuery.trim()) {
-            searchClear.style.display = 'block';
+            searchClear.classList.remove('hidden');
         } else {
-            searchClear.style.display = 'none';
+            searchClear.classList.add('hidden');
         }
         
         // If in bento view, re-render with search results
@@ -1214,6 +1214,8 @@ function setupNavigation() {
                 loadLLMsPage();
             } else if (view === 'brand-kit') {
                 loadBrandKitPage();
+            } else if (view === 'news') {
+                loadNewsPage();
             }
         });
     });
@@ -1297,16 +1299,30 @@ async function loadShowcasePage() {
                 <h2>ElizaOS Creative Projects</h2>
                 <p>Explore projects built with ElizaOS creative assets</p>
             </div>
+            
+            <!-- Projects Grid -->
             <div class="showcase-grid" id="showcase-grid">
-                <!-- Projects will be loaded here -->
+                <!-- Shmotime Project -->
+                <div class="showcase-item">
+                    <div class="showcase-thumbnail">
+                        <div class="showcase-placeholder">🎬</div>
+                    </div>
+                    <div class="showcase-info">
+                        <h3>Shmotime</h3>
+                        <p>AI-generated gaming and tech content powered by ElizaOS. Watch episodes featuring game reviews, tech discussions, and community highlights.</p>
+                        <a href="https://shmotime.com/shmotime_episode/" class="showcase-link" target="_blank">Visit Shmotime →</a>
+                    </div>
+                </div>
+                
+                <!-- Placeholder for more projects -->
                 <div class="showcase-item">
                     <div class="showcase-thumbnail">
                         <div class="showcase-placeholder">🎨</div>
                     </div>
                     <div class="showcase-info">
-                        <h3>Project Name</h3>
-                        <p>Project description goes here. This is a placeholder for showcasing ElizaOS creative projects.</p>
-                        <a href="#" class="showcase-link" target="_blank">View Project →</a>
+                        <h3>More Projects Coming Soon</h3>
+                        <p>We're always adding new ElizaOS creative projects. Check back soon for more showcases!</p>
+                        <a href="#" class="showcase-link" style="opacity: 0.5; pointer-events: none;">Coming Soon</a>
                     </div>
                 </div>
             </div>
@@ -1328,6 +1344,7 @@ async function loadShowcasePage() {
         );
     }
 }
+
 
 // Load LLMs page content
 async function loadLLMsPage() {
@@ -1573,7 +1590,7 @@ function initializePersistentMusicPlayer() {
     const playerContainer = document.getElementById('header-music-player');
     if (!playerContainer) return;
     
-    playerContainer.style.display = 'block';
+    playerContainer.classList.remove('hidden');
     
     // Render player HTML
     const basePath = getBasePath();
@@ -1935,4 +1952,1251 @@ function formatTime(seconds) {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+// News sources configuration
+const NEWS_SOURCES = [
+    {
+        name: 'Council Aggregated',
+        url: 'https://elizaos.github.io/knowledge/the-council/aggregated/daily.json',
+        icon: '📊',
+        color: '#8b5cf6',
+        colorName: 'purple'
+    },
+    {
+        name: 'Council Briefing',
+        url: 'https://elizaos.github.io/knowledge/the-council/council_briefing/daily.json',
+        icon: '📋',
+        color: '#22d3ee',
+        colorName: 'cyan'
+    },
+    {
+        name: 'ElizaOS AI News',
+        url: 'https://elizaos.github.io/knowledge/ai-news/elizaos/json/daily.json',
+        icon: '🤖',
+        color: '#10b981',
+        colorName: 'green'
+    },
+    {
+        name: 'Extracted Facts',
+        url: 'https://elizaos.github.io/knowledge/the-council/facts/daily.json',
+        icon: '💡',
+        color: '#f59e0b',
+        colorName: 'orange'
+    }
+];
+
+// Helper function to get color name for CSS class
+function getColorName(colorHex) {
+    const colorMap = {
+        '#8b5cf6': 'purple',
+        '#22d3ee': 'cyan',
+        '#10b981': 'green',
+        '#f59e0b': 'orange'
+    };
+    return colorMap[colorHex] || 'purple';
+}
+
+// Load News page
+async function loadNewsPage() {
+    const previewContainer = document.getElementById('asset-preview');
+    previewContainer.innerHTML = '<div class="loading">Loading news...</div>';
+    
+    document.getElementById('asset-title').textContent = 'ElizaOS News';
+    
+    // Clear search
+    searchQuery = '';
+    const searchInput = document.getElementById('search-input');
+    if (searchInput) {
+        searchInput.value = '';
+    }
+    
+    // Clear active file selection
+    document.querySelectorAll('.file-tree-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    try {
+        // Fetch all news sources in parallel
+        const newsPromises = NEWS_SOURCES.map(async (source) => {
+            try {
+                const response = await fetch(source.url);
+                if (!response.ok) throw new Error(`Failed to load ${source.name}`);
+                const data = await response.json();
+                return {
+                    source: source,
+                    data: data,
+                    error: null
+                };
+            } catch (error) {
+                return {
+                    source: source,
+                    data: null,
+                    error: error.message
+                };
+            }
+        });
+        
+        const newsResults = await Promise.all(newsPromises);
+        
+        // Generate HTML for news display
+        let newsHTML = '<div class="news-container">';
+        
+        newsResults.forEach((result, index) => {
+            const { source, data, error } = result;
+            
+            // Format content first to count cards
+            let formattedContent = '';
+            let cardCount = 0;
+            
+            if (error) {
+                formattedContent = `
+                    <div class="news-error">
+                        <p>Error loading news: ${escapeHtml(error)}</p>
+                    </div>
+                `;
+            } else if (data) {
+                // Parse and format the JSON data
+                formattedContent = formatNewsData(data, source.name);
+                // Count cards in the formatted content
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = formattedContent;
+                cardCount = tempDiv.querySelectorAll('.news-card').length;
+            }
+            
+            newsHTML += `
+                <div class="news-source-card" data-source-color="${source.colorName}">
+                    <div class="news-source-header cursor-pointer" data-source-index="${index}">
+                        <div class="news-source-title">
+                            <button class="news-source-toggle" data-source-index="${index}" title="Expand/Collapse">
+                                <svg class="toggle-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </button>
+                            <span class="news-source-icon">${source.icon}</span>
+                            <h2>${escapeHtml(source.name)}</h2>
+                            ${cardCount > 0 ? `<span class="news-source-count">(${cardCount} items)</span>` : ''}
+                        </div>
+                        <div class="news-source-actions">
+                            <button class="copy-all-btn" data-source-index="${index}" title="Copy all content" onclick="event.stopPropagation();">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                                Copy All
+                            </button>
+                        </div>
+                    </div>
+                    <div class="news-source-content news-source-content-collapsed" data-source-index="${index}">
+                        ${formattedContent}
+                    </div>
+                </div>
+            `;
+            
+            newsHTML += `
+                    </div>
+                </div>
+            `;
+        });
+        
+        newsHTML += '</div>';
+        
+        previewContainer.innerHTML = newsHTML;
+        
+        // Setup copy buttons
+        setupNewsCopyButtons(newsResults);
+        
+        // Setup expandable/collapsible functionality
+        setupNewsSourceToggles();
+        
+        // Animate with Motion.dev
+        const newsCards = previewContainer.querySelectorAll('.news-source-card');
+        if (newsCards.length > 0) {
+            animate(newsCards,
+                { opacity: [0, 1], y: [20, 0] },
+                {
+                    duration: 0.4,
+                    delay: stagger(0.1),
+                    easing: 'ease-out'
+                }
+            );
+        }
+        
+    } catch (error) {
+        console.error('Error loading news:', error);
+        previewContainer.innerHTML = '<div class="empty-state"><p>Error loading news. Please try again later.</p></div>';
+    }
+}
+
+// Format news data into readable, card-based structure
+function formatNewsData(data, sourceName) {
+    let html = '';
+    let cardIndex = 0;
+    
+    // Handle different data structures
+    if (Array.isArray(data)) {
+        // If it's an array, each item becomes a card
+        data.forEach((item, index) => {
+            const cards = extractNewsCards(item, cardIndex);
+            cards.forEach(card => {
+                html += formatNewsCard(card, cardIndex++);
+            });
+        });
+    } else if (typeof data === 'object' && data !== null) {
+        // Extract cards from object structure
+        const cards = extractNewsCards(data, cardIndex);
+        cards.forEach(card => {
+            html += formatNewsCard(card, cardIndex++);
+        });
+    } else if (typeof data === 'string') {
+        // If it's a string (like markdown), parse it into cards
+        const cards = parseMarkdownIntoCards(data);
+        cards.forEach(card => {
+            html += formatNewsCard(card, cardIndex++);
+        });
+    } else {
+        // Plain text
+        html += formatNewsCard({
+            title: null,
+            content: String(data),
+            type: 'text'
+        }, cardIndex++);
+    }
+    
+    return html;
+}
+
+// Extract relevant information as cards from data structure
+function extractNewsCards(data, startIndex) {
+    const cards = [];
+    
+    if (typeof data === 'string') {
+        // Parse markdown string
+        return parseMarkdownIntoCards(data);
+    }
+    
+    if (typeof data !== 'object' || data === null) {
+        return cards;
+    }
+    
+    // Handle common news structures
+    if (data.title && data.content) {
+        // Standard news item - format content properly
+        let formattedContent = '';
+        
+        if (typeof data.content === 'string') {
+            formattedContent = data.content;
+        } else if (Array.isArray(data.content)) {
+            // Format array of content items
+            formattedContent = formatContentArray(data.content);
+        } else if (typeof data.content === 'object') {
+            // Format object content
+            formattedContent = formatContentObject(data.content);
+        } else {
+            formattedContent = String(data.content);
+        }
+        
+        cards.push({
+            title: data.title,
+            content: formattedContent,
+            date: data.date || data.timestamp,
+            type: 'article',
+            url: data.url || data.link
+        });
+    } else if (data.summary) {
+        // Summary format
+        let formattedSummary = '';
+        if (typeof data.summary === 'string') {
+            formattedSummary = data.summary;
+        } else if (Array.isArray(data.summary)) {
+            formattedSummary = formatContentArray(data.summary);
+        } else if (typeof data.summary === 'object') {
+            formattedSummary = formatContentObject(data.summary);
+        } else {
+            formattedSummary = String(data.summary);
+        }
+        
+        cards.push({
+            title: data.title || 'Summary',
+            content: formattedSummary,
+            date: data.date,
+            type: 'summary'
+        });
+    } else if (data.categories && Array.isArray(data.categories)) {
+        // Categories array - each category becomes a card
+        data.categories.forEach(category => {
+            if (typeof category === 'object' && category !== null) {
+                const categoryTitle = category.title || category.name || 'Category';
+                const categoryContent = formatCategoryContent(category);
+                cards.push({
+                    title: categoryTitle,
+                    content: categoryContent,
+                    type: 'category'
+                });
+            }
+        });
+    } else if (data.items && Array.isArray(data.items)) {
+        // Items array - format as a single card with formatted list
+        const formattedItems = formatContentArray(data.items);
+        cards.push({
+            title: data.title || 'Items',
+            content: formattedItems,
+            type: 'list'
+        });
+    } else {
+        // Parse object keys into cards
+        Object.keys(data).forEach(key => {
+            const value = data[key];
+            
+            // Skip metadata fields
+            if (key === 'filename' || key === 'date_generated_for' || key === 'type' || key === 'source') {
+                return;
+            }
+            
+            if (typeof value === 'string' && value.length > 0) {
+                // String values - check if it's markdown
+                if (value.includes('##') || value.includes('**') || value.includes('* ')) {
+                    const markdownCards = parseMarkdownIntoCards(value);
+                    markdownCards.forEach(card => {
+                        if (!card.title && key !== 'content') {
+                            card.title = key;
+                        }
+                        cards.push(card);
+                    });
+                } else {
+                    cards.push({
+                        title: key,
+                        content: value,
+                        type: 'field'
+                    });
+                }
+            } else if (Array.isArray(value) && value.length > 0) {
+                // Array values - format as a single card with formatted list
+                const formattedArray = formatContentArray(value);
+                cards.push({
+                    title: formatKeyAsTitle(key),
+                    content: formattedArray,
+                    type: 'list'
+                });
+            } else if (typeof value === 'object' && value !== null) {
+                // Nested objects - recurse
+                const nestedCards = extractNewsCards(value, startIndex);
+                nestedCards.forEach(card => {
+                    if (!card.title) {
+                        card.title = key;
+                    }
+                    cards.push(card);
+                });
+            }
+        });
+    }
+    
+    return cards;
+}
+
+// Format content array into readable markdown
+function formatContentArray(items) {
+    if (!Array.isArray(items) || items.length === 0) {
+        return '';
+    }
+    
+    let formatted = '';
+    
+    items.forEach((item, index) => {
+        if (typeof item === 'string') {
+            // Simple string item
+            formatted += `• ${item}\n`;
+        } else if (typeof item === 'object' && item !== null) {
+            // Object item - extract text and link
+            if (item.text) {
+                let itemText = item.text;
+                if (item.link || item.url) {
+                    const linkUrl = item.link || item.url;
+                    itemText += ` [View](${linkUrl})`;
+                }
+                formatted += `• ${itemText}\n`;
+            } else if (item.title) {
+                // Item with title
+                let itemText = `**${item.title}**`;
+                if (item.content) {
+                    if (typeof item.content === 'string') {
+                        itemText += `: ${item.content}`;
+                    } else if (Array.isArray(item.content)) {
+                        itemText += `:\n${formatContentArray(item.content).split('\n').map(line => '  ' + line).join('\n')}`;
+                    } else {
+                        itemText += `:\n${formatContentObject(item.content).split('\n').map(line => '  ' + line).join('\n')}`;
+                    }
+                }
+                if (item.link || item.url) {
+                    const linkUrl = item.link || item.url;
+                    itemText += ` [View](${linkUrl})`;
+                }
+                formatted += `• ${itemText}\n`;
+            } else if (item.name) {
+                // Item with name
+                let itemText = `**${item.name}**`;
+                if (item.description) {
+                    itemText += `: ${item.description}`;
+                }
+                if (item.link || item.url) {
+                    const linkUrl = item.link || item.url;
+                    itemText += ` [View](${linkUrl})`;
+                }
+                formatted += `• ${itemText}\n`;
+            } else {
+                // Generic object - try to extract meaningful info
+                const objText = formatContentObject(item);
+                if (objText && objText.trim()) {
+                    formatted += `• ${objText}\n`;
+                } else {
+                    // Fallback: format key-value pairs
+                    const keys = Object.keys(item).filter(k => 
+                        k !== 'filename' && k !== 'date_generated_for' && k !== 'type' && k !== 'source'
+                    );
+                    if (keys.length > 0) {
+                        const keyValuePairs = keys.map(k => {
+                            const val = item[k];
+                            if (typeof val === 'string') {
+                                return `${formatKeyAsTitle(k)}: ${val}`;
+                            }
+                            return null;
+                        }).filter(Boolean);
+                        if (keyValuePairs.length > 0) {
+                            formatted += `• ${keyValuePairs.join(', ')}\n`;
+                        }
+                    }
+                }
+            }
+        } else {
+            formatted += `• ${String(item)}\n`;
+        }
+    });
+    
+    return formatted.trim();
+}
+
+// Format content object into readable markdown
+function formatContentObject(obj) {
+    if (typeof obj !== 'object' || obj === null) {
+        return String(obj);
+    }
+    
+    let formatted = '';
+    
+    // Handle common object structures
+    if (obj.text) {
+        formatted = obj.text;
+        if (obj.link || obj.url) {
+            formatted += ` [View](${obj.link || obj.url})`;
+        }
+        return formatted;
+    }
+    
+    // Format object fields
+    const fields = [];
+    Object.keys(obj).forEach(key => {
+        // Skip metadata
+        if (key === 'filename' || key === 'date_generated_for' || key === 'type' || key === 'source') {
+            return;
+        }
+        
+        const value = obj[key];
+        if (typeof value === 'string' && value.length > 0) {
+            fields.push(`**${formatKeyAsTitle(key)}**: ${value}`);
+        } else if (Array.isArray(value) && value.length > 0) {
+            fields.push(`**${formatKeyAsTitle(key)}**:\n${formatContentArray(value).split('\n').map(line => '  ' + line).join('\n')}`);
+        } else if (typeof value === 'object' && value !== null) {
+            fields.push(`**${formatKeyAsTitle(key)}**:\n${formatContentObject(value).split('\n').map(line => '  ' + line).join('\n')}`);
+        }
+    });
+    
+    return fields.join('\n\n');
+}
+
+// Format key name as readable title
+function formatKeyAsTitle(key) {
+    // Convert snake_case or camelCase to Title Case
+    return key
+        .replace(/_/g, ' ')
+        .replace(/([A-Z])/g, ' $1')
+        .replace(/^./, str => str.toUpperCase())
+        .trim();
+}
+
+// Format category content into readable text
+function formatCategoryContent(category) {
+    if (typeof category === 'string') {
+        return category;
+    }
+    
+    if (typeof category !== 'object' || category === null) {
+        return String(category);
+    }
+    
+    let content = '';
+    
+    // Extract meaningful fields
+    if (category.description) {
+        content += category.description + '\n\n';
+    }
+    
+    if (category.items && Array.isArray(category.items)) {
+        content += formatContentArray(category.items);
+    }
+    
+    if (category.summary) {
+        if (content) content += '\n\n';
+        content += category.summary;
+    }
+    
+    return content.trim() || formatContentObject(category);
+}
+
+// Parse markdown into cards
+function parseMarkdownIntoCards(markdownText) {
+    const cards = [];
+    
+    if (!markdownText || typeof markdownText !== 'string') {
+        return cards;
+    }
+    
+    // Split by major headings
+    const sections = markdownText.split(/(?=^##?\s)/m);
+    
+    sections.forEach(section => {
+        section = section.trim();
+        if (!section) return;
+        
+        // Extract heading
+        const headingMatch = section.match(/^(##?#?\s+)(.+)$/m);
+        const heading = headingMatch ? headingMatch[2].trim() : null;
+        let content = headingMatch ? section.replace(/^##?#?\s+.+$/m, '').trim() : section.trim();
+        
+        if (!content) return;
+        
+        // Break content into smaller chunks (paragraphs, lists, Q&A)
+        const chunks = content.split(/\n\n+/);
+        
+        chunks.forEach(chunk => {
+            chunk = chunk.trim();
+            if (!chunk) return;
+            
+            // Determine chunk type
+            if (chunk.match(/^Q:\s*/i) || chunk.match(/^Question:/i)) {
+                // Q&A pair
+                cards.push({
+                    title: heading || 'Q&A',
+                    content: chunk,
+                    type: 'qa'
+                });
+            } else if (chunk.match(/^[\*\-\+]\s/) || chunk.match(/^\d+\.\s/)) {
+                // List
+                cards.push({
+                    title: heading || 'List',
+                    content: chunk,
+                    type: 'list'
+                });
+            } else if (chunk.match(/^###\s/)) {
+                // Subheading with content
+                const subHeadingMatch = chunk.match(/^###\s+(.+)$/m);
+                const subHeading = subHeadingMatch ? subHeadingMatch[1].trim() : null;
+                const subContent = subHeadingMatch ? chunk.replace(/^###\s+.+$/m, '').trim() : chunk;
+                cards.push({
+                    title: subHeading || heading,
+                    content: subContent,
+                    type: 'section'
+                });
+            } else {
+                // Regular paragraph
+                cards.push({
+                    title: heading,
+                    content: chunk,
+                    type: 'paragraph'
+                });
+            }
+        });
+    });
+    
+    // If no sections found, break into paragraphs
+    if (cards.length === 0) {
+        const paragraphs = markdownText.split(/\n\n+/);
+        paragraphs.forEach(para => {
+            para = para.trim();
+            if (para && para.length > 20) { // Only include substantial paragraphs
+                cards.push({
+                    title: null,
+                    content: para,
+                    type: 'paragraph'
+                });
+            }
+        });
+    }
+    
+    return cards;
+}
+
+// Format a news card
+function formatNewsCard(card, index) {
+    let html = `<div class="news-card" data-card-index="${index}">`;
+    
+    // Copy button
+    html += `
+        <button class="copy-card-btn" data-card-index="${index}" title="Copy this card">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+        </button>
+    `;
+    
+    html += '<div class="news-card-content">';
+    
+    // Card title
+    if (card.title) {
+        html += `<h3 class="news-card-title">${escapeHtml(card.title)}</h3>`;
+    }
+    
+    // Card date
+    if (card.date) {
+        html += `<div class="news-card-date">📅 ${escapeHtml(String(card.date))}</div>`;
+    }
+    
+    // Card content based on type
+    if (card.type === 'qa') {
+        html += formatQACard(card.content);
+    } else if (card.type === 'list') {
+        html += formatListCard(card.content);
+    } else if (card.type === 'category') {
+        html += formatCategoryCard(card.content);
+    } else {
+        html += formatTextCard(card.content);
+    }
+    
+    // Card URL if available
+    if (card.url) {
+        html += `<a href="${escapeHtml(card.url)}" target="_blank" class="news-card-link">🔗 View Source</a>`;
+    }
+    
+    html += '</div></div>';
+    return html;
+}
+
+// Format Q&A card
+function formatQACard(content) {
+    const parts = content.split(/\n(?=A:|Answer:)/i);
+    let html = '<div class="news-card-qa">';
+    
+    parts.forEach(part => {
+        part = part.trim();
+        if (part.match(/^Q:/i) || part.match(/^Question:/i)) {
+            const question = part.replace(/^Q:\s*/i, '').replace(/^Question:\s*/i, '').trim();
+            html += `<div class="news-card-question"><strong>Q:</strong> ${formatMarkdownInline(question)}</div>`;
+        } else if (part.match(/^A:/i) || part.match(/^Answer:/i)) {
+            const answer = part.replace(/^A:\s*/i, '').replace(/^Answer:\s*/i, '').trim();
+            html += `<div class="news-card-answer"><strong>A:</strong> ${formatMarkdownInline(answer)}</div>`;
+        } else {
+            html += `<div class="news-card-text">${formatMarkdownInline(part)}</div>`;
+        }
+    });
+    
+    html += '</div>';
+    return html;
+}
+
+// Format list card
+function formatListCard(content) {
+    const lines = content.split('\n').filter(line => line.trim());
+    let html = '<ul class="news-card-list">';
+    
+    lines.forEach(line => {
+        line = line.trim();
+        if (!line) return;
+        
+        // Remove markdown list markers
+        const listItem = line.replace(/^[\*\-\+]\s+/, '').replace(/^\d+\.\s+/, '').trim();
+        if (listItem) {
+            html += `<li>${formatMarkdownInline(listItem)}</li>`;
+        }
+    });
+    
+    html += '</ul>';
+    return html;
+}
+
+// Format category card
+function formatCategoryCard(content) {
+    return `<div class="news-card-text">${formatMarkdownInline(content)}</div>`;
+}
+
+// Format text card
+function formatTextCard(content) {
+    // Check if it's markdown
+    if (content.includes('##') || content.includes('**') || content.includes('* ')) {
+        return `<div class="news-card-text">${formatMarkdownText(content)}</div>`;
+    } else {
+        // Regular text - preserve line breaks
+        const formatted = escapeHtml(content).replace(/\n/g, '<br>');
+        return `<div class="news-card-text">${formatted}</div>`;
+    }
+}
+
+// Format markdown text
+function formatMarkdownText(text) {
+    let formatted = escapeHtml(text);
+    
+    // Headings
+    formatted = formatted.replace(/^###\s+(.+)$/gm, '<h4>$1</h4>');
+    formatted = formatted.replace(/^##\s+(.+)$/gm, '<h3>$1</h3>');
+    formatted = formatted.replace(/^#\s+(.+)$/gm, '<h2>$1</h2>');
+    
+    // Bold
+    formatted = formatted.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    
+    // Italic
+    formatted = formatted.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+    
+    // Code
+    formatted = formatted.replace(/`([^`]+)`/g, '<code>$1</code>');
+    
+    // Links
+    formatted = formatted.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" class="news-link">$1</a>');
+    
+    // Line breaks
+    formatted = formatted.replace(/\n/g, '<br>');
+    
+    return formatted;
+}
+
+// Parse markdown content into copyable segments
+function parseMarkdownIntoSegments(markdownText, sourceName) {
+    let html = '';
+    let segmentIndex = 0;
+    
+    // Split by major headings (## or #)
+    const sections = markdownText.split(/(?=^##?\s)/m);
+    
+    sections.forEach((section, index) => {
+        if (!section.trim()) return;
+        
+        // Extract heading
+        const headingMatch = section.match(/^(##?#?\s+)(.+)$/m);
+        const heading = headingMatch ? headingMatch[2].trim() : null;
+        const content = headingMatch ? section.replace(/^##?#?\s+.+$/m, '').trim() : section.trim();
+        
+        if (!content) return;
+        
+        // Break content into smaller segments (by paragraphs, lists, etc.)
+        const segments = breakIntoCopyableSegments(content, heading);
+        
+        segments.forEach((segment, segIndex) => {
+            if (segment.text.trim()) {
+                html += formatNewsSegment(segment, segmentIndex++, heading);
+            }
+        });
+    });
+    
+    // If no sections found, break the whole text into paragraphs
+    if (!html) {
+        const segments = breakIntoCopyableSegments(markdownText, null);
+        segments.forEach((segment, segIndex) => {
+            if (segment.text.trim()) {
+                html += formatNewsSegment(segment, segmentIndex++, null);
+            }
+        });
+    }
+    
+    return html;
+}
+
+// Break content into copyable segments (paragraphs, lists, Q&A pairs, etc.)
+function breakIntoCopyableSegments(content, heading) {
+    const segments = [];
+    
+    // Split by double newlines (paragraphs)
+    const paragraphs = content.split(/\n\n+/);
+    
+    paragraphs.forEach(para => {
+        para = para.trim();
+        if (!para) return;
+        
+        // Check if it's a Q&A pair
+        if (para.match(/^Q:\s*/i) || para.match(/^Question:/i)) {
+            segments.push({ type: 'qa', text: para, heading: heading });
+        }
+        // Check if it's a list
+        else if (para.match(/^[\*\-\+]\s/) || para.match(/^\d+\.\s/)) {
+            segments.push({ type: 'list', text: para, heading: heading });
+        }
+        // Check if it's a subheading
+        else if (para.match(/^###\s/)) {
+            segments.push({ type: 'subheading', text: para, heading: heading });
+        }
+        // Regular paragraph
+        else {
+            segments.push({ type: 'paragraph', text: para, heading: heading });
+        }
+    });
+    
+    return segments;
+}
+
+// Format a news segment with copy button
+function formatNewsSegment(segment, index, parentHeading) {
+    let html = `<div class="news-segment" data-segment-index="${index}">`;
+    
+    // Copy button
+    html += `
+        <button class="copy-segment-btn" data-segment-index="${index}" title="Copy this segment">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+        </button>
+    `;
+    
+    html += '<div class="news-segment-content">';
+    
+    // Format based on segment type
+    if (segment.type === 'subheading') {
+        const headingText = segment.text.replace(/^###\s+/, '').trim();
+        html += `<h4 class="news-segment-heading">${escapeHtml(headingText)}</h4>`;
+    } else if (segment.type === 'list') {
+        html += formatMarkdownList(segment.text);
+    } else if (segment.type === 'qa') {
+        html += formatQAPair(segment.text);
+    } else {
+        // Regular paragraph - format markdown
+        html += formatMarkdownText(segment.text);
+    }
+    
+    html += '</div></div>';
+    return html;
+}
+
+// Format markdown list
+function formatMarkdownList(text) {
+    const lines = text.split('\n');
+    let html = '<ul class="news-list">';
+    
+    lines.forEach(line => {
+        line = line.trim();
+        if (!line) return;
+        
+        // Remove markdown list markers
+        const listItem = line.replace(/^[\*\-\+]\s+/, '').replace(/^\d+\.\s+/, '').trim();
+        if (listItem) {
+            html += `<li>${formatMarkdownInline(listItem)}</li>`;
+        }
+    });
+    
+    html += '</ul>';
+    return html;
+}
+
+// Format Q&A pair
+function formatQAPair(text) {
+    // Split Q and A
+    const parts = text.split(/\n(?=A:|Answer:)/i);
+    let html = '<div class="news-qa">';
+    
+    parts.forEach(part => {
+        part = part.trim();
+        if (part.match(/^Q:/i) || part.match(/^Question:/i)) {
+            const question = part.replace(/^Q:\s*/i, '').replace(/^Question:\s*/i, '').trim();
+            html += `<div class="news-question"><strong>Q:</strong> ${formatMarkdownInline(question)}</div>`;
+        } else if (part.match(/^A:/i) || part.match(/^Answer:/i)) {
+            const answer = part.replace(/^A:\s*/i, '').replace(/^Answer:\s*/i, '').trim();
+            html += `<div class="news-answer"><strong>A:</strong> ${formatMarkdownInline(answer)}</div>`;
+        } else {
+            html += `<div class="news-text">${formatMarkdownInline(part)}</div>`;
+        }
+    });
+    
+    html += '</div>';
+    return html;
+}
+
+// Format inline markdown (bold, italic, links, code)
+function formatMarkdownInline(text) {
+    let formatted = escapeHtml(text);
+    
+    // Bold **text**
+    formatted = formatted.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    
+    // Italic *text*
+    formatted = formatted.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+    
+    // Code `text`
+    formatted = formatted.replace(/`([^`]+)`/g, '<code>$1</code>');
+    
+    // Links [text](url)
+    formatted = formatted.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" class="news-link">$1</a>');
+    
+    return formatted;
+}
+
+// Parse object structure into segments
+function parseObjectIntoSegments(obj, sourceName) {
+    let html = '';
+    let segmentIndex = 0;
+    
+    Object.keys(obj).forEach(key => {
+        const value = obj[key];
+        
+        if (value === null || value === undefined) return;
+        
+        // Skip metadata fields or show them separately
+        if (key === 'date' || key === 'timestamp' || key === 'date_generated_for' || key === 'filename') {
+            html += `<div class="news-meta"><strong>${escapeHtml(key)}:</strong> ${escapeHtml(String(value))}</div>`;
+            return;
+        }
+        
+        if (typeof value === 'string' && value.length > 100) {
+            // Long strings - parse as markdown
+            html += parseMarkdownIntoSegments(value, sourceName);
+        } else if (Array.isArray(value)) {
+            // Arrays - each item is a segment
+            value.forEach((item, index) => {
+                if (typeof item === 'string') {
+                    html += formatNewsSegment(
+                        { type: 'paragraph', text: item, heading: key },
+                        segmentIndex++,
+                        key
+                    );
+                } else {
+                    html += formatNewsItem({ [key]: item }, segmentIndex++, sourceName);
+                }
+            });
+        } else if (typeof value === 'object') {
+            // Nested objects - recurse
+            html += `<div class="news-nested-section"><h3>${escapeHtml(key)}</h3>`;
+            html += parseObjectIntoSegments(value, sourceName);
+            html += '</div>';
+        } else {
+            // Simple key-value pairs
+            html += formatNewsSegment(
+                { type: 'paragraph', text: `${key}: ${String(value)}`, heading: null },
+                segmentIndex++,
+                null
+            );
+        }
+    });
+    
+    return html;
+}
+
+// Format individual news item (fallback for non-markdown content)
+function formatNewsItem(item, index, sourceName) {
+    let html = `<div class="news-segment" data-segment-index="${index}">`;
+    
+    // Add copy button
+    html += `
+        <button class="copy-segment-btn" data-segment-index="${index}" title="Copy this segment">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+        </button>
+    `;
+    
+    html += '<div class="news-segment-content">';
+    
+    // Format based on item structure
+    if (typeof item === 'string') {
+        // Check if it's markdown
+        if (item.includes('##') || item.includes('**') || item.includes('* ')) {
+            html += parseMarkdownIntoSegments(item, sourceName);
+        } else {
+            html += `<div class="news-text">${escapeHtml(item)}</div>`;
+        }
+    } else if (typeof item === 'object' && item !== null) {
+        // Format object properties
+        Object.keys(item).forEach(key => {
+            const value = item[key];
+            if (value !== null && value !== undefined) {
+                if (key === 'date' || key === 'timestamp') {
+                    html += `<div class="news-date">📅 ${escapeHtml(String(value))}</div>`;
+                } else if (key === 'title' || key === 'headline') {
+                    html += `<h4 class="news-segment-heading">${escapeHtml(String(value))}</h4>`;
+                } else if (key === 'content' || key === 'text' || key === 'summary' || key === 'body') {
+                    // Parse as markdown if it looks like markdown
+                    if (typeof value === 'string' && (value.includes('##') || value.includes('**'))) {
+                        html += parseMarkdownIntoSegments(value, sourceName);
+                    } else {
+                        html += `<div class="news-text">${formatTextContent(String(value))}</div>`;
+                    }
+                } else if (key === 'url' || key === 'link') {
+                    html += `<a href="${escapeHtml(String(value))}" target="_blank" class="news-link">🔗 ${escapeHtml(String(value))}</a>`;
+                } else if (Array.isArray(value)) {
+                    html += `<div class="news-list"><strong>${escapeHtml(key)}:</strong><ul>`;
+                    value.forEach(v => {
+                        html += `<li>${escapeHtml(String(v))}</li>`;
+                    });
+                    html += '</ul></div>';
+                } else if (typeof value === 'object') {
+                    html += `<div class="news-nested"><strong>${escapeHtml(key)}:</strong>`;
+                    html += parseObjectIntoSegments(value, sourceName);
+                    html += '</div>';
+                } else {
+                    html += `<div class="news-field"><strong>${escapeHtml(key)}:</strong> ${escapeHtml(String(value))}</div>`;
+                }
+            }
+        });
+    } else {
+        html += `<div class="news-text">${escapeHtml(String(item))}</div>`;
+    }
+    
+    html += '</div></div>';
+    return html;
+}
+
+// Format text content (preserve line breaks, handle markdown-like formatting)
+function formatTextContent(text) {
+    // Replace markdown-style formatting
+    let formatted = escapeHtml(text);
+    
+    // Convert line breaks
+    formatted = formatted.replace(/\n\n/g, '</p><p>');
+    formatted = formatted.replace(/\n/g, '<br>');
+    
+    // Wrap in paragraph if not already wrapped
+    if (!formatted.startsWith('<p>')) {
+        formatted = '<p>' + formatted + '</p>';
+    }
+    
+    return formatted;
+}
+
+// Setup copy button functionality
+function setupNewsCopyButtons(newsResults) {
+    // Copy all button for each source
+    document.querySelectorAll('.copy-all-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.stopPropagation(); // Prevent triggering toggle
+            const sourceIndex = parseInt(btn.getAttribute('data-source-index'));
+            const result = newsResults[sourceIndex];
+            
+            if (result && result.data) {
+                const textToCopy = formatDataForCopy(result.data, result.source.name);
+                await copyToClipboard(textToCopy, btn);
+            }
+        });
+    });
+    
+    // Copy individual card buttons
+    document.querySelectorAll('.copy-card-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.stopPropagation(); // Prevent triggering toggle
+            const newsCard = btn.closest('.news-card');
+            const cardContent = newsCard.querySelector('.news-card-content');
+            
+            if (cardContent) {
+                const textToCopy = extractTextFromCard(cardContent);
+                await copyToClipboard(textToCopy, btn);
+            }
+        });
+    });
+}
+
+// Setup expandable/collapsible functionality for news sources
+function setupNewsSourceToggles() {
+    // Toggle button clicks
+    document.querySelectorAll('.news-source-toggle').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const sourceIndex = btn.getAttribute('data-source-index');
+            toggleNewsSource(sourceIndex);
+        });
+    });
+    
+    // Header clicks (also toggle)
+    document.querySelectorAll('.news-source-header').forEach(header => {
+        header.addEventListener('click', (e) => {
+            // Don't toggle if clicking on buttons
+            if (e.target.closest('button')) return;
+            const sourceIndex = header.getAttribute('data-source-index');
+            toggleNewsSource(sourceIndex);
+        });
+    });
+}
+
+// Toggle a news source's expanded/collapsed state
+function toggleNewsSource(sourceIndex) {
+    const content = document.querySelector(`.news-source-content[data-source-index="${sourceIndex}"]`);
+    const toggle = document.querySelector(`.news-source-toggle[data-source-index="${sourceIndex}"]`);
+    const toggleIcon = toggle?.querySelector('.toggle-icon');
+    
+    if (!content || !toggle) return;
+    
+    const isExpanded = content.classList.contains('news-source-content-expanded');
+    
+    if (isExpanded) {
+        // Collapse
+        content.classList.remove('news-source-content-expanded');
+        content.classList.add('news-source-content-collapsed');
+        if (toggleIcon) {
+            toggleIcon.style.transform = 'rotate(-90deg)';
+        }
+    } else {
+        // Expand
+        content.classList.remove('news-source-content-collapsed');
+        content.classList.add('news-source-content-expanded');
+        if (toggleIcon) {
+            toggleIcon.style.transform = 'rotate(0deg)';
+        }
+    }
+}
+
+// Extract text from card element for copying
+function extractTextFromCard(element) {
+    const clone = element.cloneNode(true);
+    
+    // Remove copy buttons
+    clone.querySelectorAll('.copy-card-btn, .copy-all-btn').forEach(btn => btn.remove());
+    
+    let text = '';
+    
+    // Extract title
+    const title = clone.querySelector('.news-card-title');
+    if (title) {
+        text += title.textContent.trim() + '\n\n';
+    }
+    
+    // Extract date
+    const date = clone.querySelector('.news-card-date');
+    if (date) {
+        text += date.textContent.trim() + '\n';
+    }
+    
+    // Extract content
+    const content = clone.textContent || clone.innerText || '';
+    text += content.replace(title?.textContent || '', '').replace(date?.textContent || '', '').trim();
+    
+    // Clean up
+    text = text.replace(/\n{3,}/g, '\n\n').trim();
+    
+    return text;
+}
+
+// Format data as plain text for copying
+function formatDataForCopy(data, sourceName) {
+    let text = `# ${sourceName}\n\n`;
+    
+    if (Array.isArray(data)) {
+        data.forEach((item, index) => {
+            text += formatItemForCopy(item, index);
+            text += '\n\n';
+        });
+    } else if (typeof data === 'object' && data !== null) {
+        text += formatItemForCopy(data, 0);
+    } else {
+        text += String(data);
+    }
+    
+    return text;
+}
+
+// Format individual item for copying
+function formatItemForCopy(item, index) {
+    let text = '';
+    
+    if (typeof item === 'string') {
+        text += item;
+    } else if (typeof item === 'object' && item !== null) {
+        Object.keys(item).forEach(key => {
+            const value = item[key];
+            if (value !== null && value !== undefined) {
+                if (Array.isArray(value)) {
+                    text += `${key}:\n`;
+                    value.forEach(v => {
+                        text += `  - ${String(v)}\n`;
+                    });
+                } else if (typeof value === 'object') {
+                    text += `${key}:\n${formatItemForCopy(value, 0)}\n`;
+                } else {
+                    text += `${key}: ${String(value)}\n`;
+                }
+            }
+        });
+    } else {
+        text += String(item);
+    }
+    
+    return text;
+}
+
+// Extract text from HTML element
+function extractTextFromElement(element) {
+    const clone = element.cloneNode(true);
+    
+    // Remove copy buttons
+    clone.querySelectorAll('.copy-segment-btn, .copy-item-btn, .copy-all-btn').forEach(btn => btn.remove());
+    
+    // Convert to text, preserving structure
+    let text = '';
+    
+    // Handle different element types
+    clone.querySelectorAll('h4, h3, p, div, li, ul, ol').forEach(el => {
+        const tagName = el.tagName.toLowerCase();
+        const content = el.textContent.trim();
+        
+        if (!content) return;
+        
+        if (tagName === 'h4' || tagName === 'h3') {
+            text += `\n${content}\n`;
+        } else if (tagName === 'li') {
+            text += `- ${content}\n`;
+        } else if (tagName === 'ul' || tagName === 'ol') {
+            // Lists are handled by li elements
+        } else {
+            text += `${content}\n`;
+        }
+    });
+    
+    // Fallback to simple text extraction
+    if (!text) {
+        text = clone.textContent || clone.innerText || '';
+    }
+    
+    // Clean up whitespace but preserve structure
+    text = text.replace(/\n{3,}/g, '\n\n').trim();
+    
+    return text;
+}
+
+// Copy to clipboard with visual feedback
+async function copyToClipboard(text, button) {
+    try {
+        await navigator.clipboard.writeText(text);
+        
+        // Visual feedback
+        const originalHTML = button.innerHTML;
+        button.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+        button.style.color = '#10b981';
+        
+        setTimeout(() => {
+            button.innerHTML = originalHTML;
+            button.style.color = '';
+        }, 2000);
+    } catch (error) {
+        console.error('Failed to copy:', error);
+        // Fallback for older browsers
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        
+        // Visual feedback
+        const originalHTML = button.innerHTML;
+        button.innerHTML = '✓';
+        button.style.color = '#10b981';
+        setTimeout(() => {
+            button.innerHTML = originalHTML;
+            button.style.color = '';
+        }, 2000);
+    }
 }

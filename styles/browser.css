@@ -1,0 +1,159 @@
+/* ============================================
+   Browser - File Tree, Search
+   ============================================ */
+
+.browser-search {
+    position: relative;
+    margin-bottom: 12px;
+    padding: 0 4px;
+}
+
+.browser-search .search-input {
+    width: 100%;
+    padding: 8px 12px;
+    padding-right: 36px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 14px;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+.browser-search .search-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: var(--bg-secondary);
+}
+
+.browser-search .search-clear {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s;
+    line-height: 1;
+}
+
+.browser-search .search-clear:hover {
+    color: var(--text-primary);
+    background: var(--bg-tertiary);
+}
+
+.search-input {
+    width: 100%;
+    padding: 8px 12px;
+    padding-right: 36px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 14px;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: var(--bg-tertiary);
+}
+
+.search-input::placeholder {
+    color: var(--text-secondary);
+}
+
+.search-clear {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s;
+    line-height: 1;
+}
+
+.search-clear:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+/* File Tree */
+.file-tree {
+    font-size: 14px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.file-tree-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.2s;
+    user-select: none;
+}
+
+.file-tree-item:hover {
+    background: var(--bg-tertiary);
+}
+
+.file-tree-item.active {
+    background: var(--bg-tertiary);
+    color: var(--accent);
+}
+
+.file-tree-item.folder {
+    font-weight: 500;
+}
+
+.file-tree-item.file {
+    padding-left: 32px;
+    color: var(--text-secondary);
+}
+
+.file-tree-item.file:hover {
+    color: var(--text-primary);
+}
+
+.file-tree-item.file.audio::before {
+    content: "🎵 ";
+    margin-right: 6px;
+}
+
+.file-tree-item.file.video::before {
+    content: "🎬 ";
+    margin-right: 6px;
+}
+
+.file-tree-item.file.image::before {
+    content: "🖼️ ";
+    margin-right: 6px;
+}
+
+.folder-icon {
+    display: inline-block;
+    margin-right: 6px;
+    width: 16px;
+}
+
+.folder-icon.expanded::before {
+    content: "📂";
+}
+
+.folder-icon.collapsed::before {
+    content: "📁";
+}

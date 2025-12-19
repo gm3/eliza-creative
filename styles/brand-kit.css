@@ -1,0 +1,18 @@
+/* ============================================
+   Brand Kit Page Styles
+   ============================================ */
+
+.main-content .brand-kit-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0;
+    width: 100%;
+}
+
+.main-content .brand-kit-content {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 32px;
+    line-height: 1.8;
+}
