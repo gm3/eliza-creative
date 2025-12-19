@@ -13,6 +13,7 @@ let previousViewState = null; // Store previous view state for back button (bent
 let itemsPerPage = 30; // Number of items to render initially (reduced for better performance)
 let currentPage = 1; // Current page of items
 let allItemsToRender = []; // All items that should be rendered (for pagination)
+let newsResults = []; // Store original news data for copying
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', async () => {
@@ -22,6 +23,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupSearch();
     initializePersistentMusicPlayer();
     animateInitialLoad();
+    
+    // Load About page as default landing page
+    loadAboutPage();
+    const navAbout = document.getElementById('nav-about');
+    if (navAbout) navAbout.classList.add('active');
 });
 
 // Get base path for GitHub Pages
@@ -781,6 +787,33 @@ function renderFileItem(item, parentElement, level) {
     parentElement.appendChild(itemElement);
 }
 
+// Expand folder by name (helper function for navigation)
+function expandFolderByName(folderName) {
+    if (!manifest) return;
+    
+    // Find the folder element in the file tree
+    const treeItems = document.querySelectorAll('.file-tree-item.folder');
+    for (const item of treeItems) {
+        const itemText = item.textContent.trim();
+        if (itemText === folderName) {
+            // Get the folder's children from manifest
+            const folderData = manifest[folderName];
+            if (folderData) {
+                // Check if already expanded
+                const icon = item.querySelector('.folder-icon');
+                if (!icon.classList.contains('expanded')) {
+                    toggleFolder(item, folderName, folderData);
+                } else {
+                    // Already expanded, just switch to bento view
+                    currentView = 'bento';
+                    renderBentoGrid();
+                }
+            }
+            return;
+        }
+    }
+}
+
 // Toggle folder expansion
 function toggleFolder(element, dirName, children) {
     // Special handling: If Brand Kit folder is clicked, load the Brand Kit page directly
@@ -1221,6 +1254,49 @@ function setupNavigation() {
     });
 }
 
+// Setup click handlers for feature cards in About page
+function setupFeatureCardLinks(cards) {
+    cards.forEach(card => {
+        // Make cards clickable with cursor pointer
+        card.style.cursor = 'pointer';
+        
+        const cardTitle = card.querySelector('h3');
+        if (!cardTitle) return;
+        
+        const titleText = cardTitle.textContent.trim();
+        
+        // Add click handler based on card title
+        card.addEventListener('click', () => {
+            // Remove active state from all nav links (will be set by navigation)
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            
+            if (titleText.includes('Music') || titleText.includes('Audio')) {
+                // Navigate to Music section
+                expandFolderByName('Music');
+            } else if (titleText.includes('Visual') || titleText.includes('Assets')) {
+                // Navigate to Visual Assets - expand both ElizaOS Stickers and ElizaOS Art
+                expandFolderByName('ElizaOS Stickers');
+                // Small delay to allow first expansion, then expand second
+                setTimeout(() => {
+                    expandFolderByName('ElizaOS Art');
+                }, 100);
+            } else if (titleText.includes('Video')) {
+                // Navigate to Videos section
+                expandFolderByName('Videos');
+            } else if (titleText.includes('Brand Kit') || titleText.includes('Brand')) {
+                // Navigate to Brand Kit page
+                loadBrandKitPage();
+                const brandKitNav = document.getElementById('nav-brand-kit');
+                if (brandKitNav) brandKitNav.classList.add('active');
+                return; // Brand Kit handles its own navigation
+            }
+            
+            // Clear About page view and switch to asset browser
+            // The folder expansion will handle switching to bento view
+        });
+    });
+}
+
 // Load About page content into main area
 async function loadAboutPage() {
     const previewContainer = document.getElementById('asset-preview');
@@ -1271,6 +1347,9 @@ async function loadAboutPage() {
                         easing: 'ease-out'
                     }
                 );
+                
+                // Add click handlers to feature cards for navigation
+                setupFeatureCardLinks(cards);
             }
         } else {
             previewContainer.innerHTML = '<div class="empty-state"><p>About page content not found</p></div>';
@@ -1771,13 +1850,43 @@ function setupMusicPlayer(audioAssets) {
     const downloadBtn = document.getElementById('music-player-download');
     if (downloadBtn) {
         updateDownloadButton(downloadBtn, musicPlayerState.playlist[0]);
-        downloadBtn.addEventListener('click', (e) => {
+        downloadBtn.addEventListener('click', async (e) => {
             e.preventDefault();
+            e.stopPropagation();
             const currentTrack = musicPlayerState.playlist[musicPlayerState.currentTrackIndex];
             if (currentTrack) {
-                downloadBtn.href = currentTrack.path;
-                downloadBtn.download = currentTrack.name;
-                downloadBtn.click();
+                try {
+                    // Fetch the file and create a blob URL for download
+                    // This works better for cross-origin resources and ensures the download works
+                    const response = await fetch(currentTrack.path);
+                    if (!response.ok) throw new Error('Failed to fetch file');
+                    
+                    const blob = await response.blob();
+                    const blobUrl = URL.createObjectURL(blob);
+                    
+                    // Create a temporary anchor element to trigger download
+                    const link = document.createElement('a');
+                    link.href = blobUrl;
+                    link.download = currentTrack.name;
+                    link.style.display = 'none';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    // Clean up the blob URL after a short delay
+                    setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+                } catch (error) {
+                    console.error('Error downloading track:', error);
+                    // Fallback: try direct download link
+                    const link = document.createElement('a');
+                    link.href = currentTrack.path;
+                    link.download = currentTrack.name;
+                    link.target = '_blank';
+                    link.style.display = 'none';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
             }
         });
     }
@@ -1905,8 +2014,12 @@ function loadTrack(index) {
 // Update download button with current track
 function updateDownloadButton(button, track) {
     if (button && track) {
-        button.href = track.path;
-        button.download = track.name;
+        // Ensure path is properly formatted
+        const downloadPath = track.path || '';
+        button.href = downloadPath;
+        button.download = track.name || 'download';
+        // Set download attribute to ensure browser downloads instead of navigating
+        button.setAttribute('download', track.name || 'download');
     }
 }
 
@@ -2037,7 +2150,7 @@ async function loadNewsPage() {
             }
         });
         
-        const newsResults = await Promise.all(newsPromises);
+        newsResults = await Promise.all(newsPromises);
         
         // Generate HTML for news display
         let newsHTML = '<div class="news-container">';
@@ -2132,6 +2245,28 @@ async function loadNewsPage() {
 function formatNewsData(data, sourceName) {
     let html = '';
     let cardIndex = 0;
+    
+    // Special handling for Extracted Facts - often has a different structure
+    if (sourceName === 'Extracted Facts') {
+        if (Array.isArray(data)) {
+            // Each fact becomes a card
+            data.forEach((fact, index) => {
+                if (typeof fact === 'object' && fact !== null) {
+                    const cards = extractNewsCards(fact, cardIndex);
+                    cards.forEach(card => {
+                        html += formatNewsCard(card, cardIndex++);
+                    });
+                } else if (typeof fact === 'string' && fact.trim().length > 3) {
+                    html += formatNewsCard({
+                        title: 'Fact',
+                        content: fact,
+                        type: 'text'
+                    }, cardIndex++);
+                }
+            });
+            return html;
+        }
+    }
     
     // Handle different data structures
     if (Array.isArray(data)) {
@@ -2248,50 +2383,194 @@ function extractNewsCards(data, startIndex) {
         Object.keys(data).forEach(key => {
             const value = data[key];
             
-            // Skip metadata fields
-            if (key === 'filename' || key === 'date_generated_for' || key === 'type' || key === 'source') {
+            // Skip metadata fields (including date - it's redundant as a card)
+            const metadataFields = [
+                'filename', 'date_generated_for', 'type', 'source', 'date', 'timestamp', 
+                'last_updated', 'updated', 'created', 'id', 'status',
+                'model', 'model_card', 'modelcard', 'model card',
+                'extracted_at', 'extractedat', 'extracted at', 'extracted_at_timestamp'
+            ];
+            const keyLower = key.toLowerCase();
+            if (metadataFields.includes(keyLower) || metadataFields.some(field => keyLower.includes(field))) {
                 return;
             }
             
             if (typeof value === 'string' && value.length > 0) {
+                // Skip minimal/empty content (just dashes, whitespace, etc.)
+                const trimmedValue = value.trim();
+                if (trimmedValue === '---' || trimmedValue === '' || trimmedValue.length < 3) {
+                    return;
+                }
+                
                 // String values - check if it's markdown
                 if (value.includes('##') || value.includes('**') || value.includes('* ')) {
                     const markdownCards = parseMarkdownIntoCards(value);
                     markdownCards.forEach(card => {
-                        if (!card.title && key !== 'content') {
-                            card.title = key;
+                        // Only add cards with meaningful content
+                        if (card.content && card.content.trim() && card.content.trim() !== '---') {
+                            if (!card.title && key !== 'content') {
+                                card.title = key;
+                            }
+                            cards.push(card);
                         }
-                        cards.push(card);
                     });
                 } else {
-                    cards.push({
-                        title: key,
-                        content: value,
-                        type: 'field'
-                    });
+                    // Only create card if content is meaningful
+                    if (trimmedValue.length > 3 && trimmedValue !== '---') {
+                        cards.push({
+                            title: formatKeyAsTitle(key),
+                            content: value,
+                            type: 'field'
+                        });
+                    }
                 }
             } else if (Array.isArray(value) && value.length > 0) {
-                // Array values - format as a single card with formatted list
-                const formattedArray = formatContentArray(value);
-                cards.push({
-                    title: formatKeyAsTitle(key),
-                    content: formattedArray,
-                    type: 'list'
-                });
-            } else if (typeof value === 'object' && value !== null) {
-                // Nested objects - recurse
-                const nestedCards = extractNewsCards(value, startIndex);
-                nestedCards.forEach(card => {
-                    if (!card.title) {
-                        card.title = key;
+                // Filter out empty arrays or arrays with only empty/minimal items
+                const meaningfulItems = value.filter(item => {
+                    if (typeof item === 'string') {
+                        const trimmed = item.trim();
+                        return trimmed.length > 3 && trimmed !== '---';
                     }
-                    cards.push(card);
+                    if (typeof item === 'object' && item !== null) {
+                        // Check if object has meaningful content
+                        const keys = Object.keys(item);
+                        return keys.length > 0 && keys.some(k => {
+                            const val = item[k];
+                            return typeof val === 'string' && val.trim().length > 3 && val.trim() !== '---';
+                        });
+                    }
+                    return true;
                 });
+                
+                if (meaningfulItems.length > 0) {
+                    const formattedArray = formatContentArray(meaningfulItems);
+                    if (formattedArray && formattedArray.trim()) {
+                        cards.push({
+                            title: formatKeyAsTitle(key),
+                            content: formattedArray,
+                            type: 'list'
+                        });
+                    }
+                }
+            } else if (typeof value === 'object' && value !== null) {
+                // Check if object has meaningful content before recursing
+                const objKeys = Object.keys(value);
+                const hasMeaningfulContent = objKeys.some(k => {
+                    const val = value[k];
+                    if (typeof val === 'string') {
+                        const trimmed = val.trim();
+                        return trimmed.length > 3 && trimmed !== '---';
+                    }
+                    if (Array.isArray(val)) {
+                        return val.length > 0;
+                    }
+                    if (typeof val === 'object' && val !== null) {
+                        return Object.keys(val).length > 0;
+                    }
+                    return false;
+                });
+                
+                if (hasMeaningfulContent) {
+                    // Nested objects - recurse
+                    const nestedCards = extractNewsCards(value, startIndex);
+                    nestedCards.forEach(card => {
+                        // Only add cards with meaningful content
+                        if (card.content && card.content.trim() && card.content.trim() !== '---') {
+                            if (!card.title) {
+                                card.title = formatKeyAsTitle(key);
+                            }
+                            // Avoid duplicate titles - merge if same title exists
+                            const existingCardIndex = cards.findIndex(c => c.title === card.title && c.type === card.type);
+                            if (existingCardIndex >= 0 && card.type === 'field') {
+                                // Merge content if same title
+                                const existing = cards[existingCardIndex];
+                                if (existing.content && !existing.content.includes(card.content)) {
+                                    cards[existingCardIndex].content += '\n\n' + card.content;
+                                }
+                            } else {
+                                cards.push(card);
+                            }
+                        }
+                    });
+                }
             }
         });
     }
     
-    return cards;
+    // Final cleanup: filter out cards with minimal or redundant content
+    const cleanedCards = cards.filter(card => {
+        // Must have content
+        if (!card.content || typeof card.content !== 'string') {
+            return false;
+        }
+        
+        const trimmedContent = card.content.trim();
+        const cardTitle = card.title ? card.title.toLowerCase().trim() : '';
+        
+        // Skip redundant metadata cards (Model, Model Card, Extracted AT, Status, etc.)
+        const redundantTitles = [
+            'model', 'model card', 'modelcard', 'model_card',
+            'extracted at', 'extractedat', 'extracted_at', 'extracted at timestamp',
+            'status'
+        ];
+        if (redundantTitles.some(title => cardTitle === title || cardTitle.includes(title))) {
+            return false;
+        }
+        
+        // Skip empty, minimal, or placeholder content
+        if (trimmedContent === '' || 
+            trimmedContent === '---' || 
+            trimmedContent.length < 3 ||
+            trimmedContent.toLowerCase() === 'null' ||
+            trimmedContent.toLowerCase() === 'undefined') {
+            return false;
+        }
+        
+        // Skip cards that are just dates (should be metadata, not cards)
+        const datePattern = /^\d{4}-\d{2}-\d{2}$|^\d{1,2}\/\d{1,2}\/\d{4}$|^(January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},?\s+\d{4}$/i;
+        if (datePattern.test(trimmedContent) && (!card.title || card.title.toLowerCase() === 'date')) {
+            return false;
+        }
+        
+        // Must have a meaningful title (unless it's a special type)
+        if (!card.title || card.title.trim() === '' || card.title === '---') {
+            // Allow cards without titles only if they have substantial content
+            if (trimmedContent.length < 50) {
+                return false;
+            }
+        }
+        
+        return true;
+    });
+    
+    // Merge cards with duplicate titles and similar content
+    const mergedCards = [];
+    const titleMap = new Map();
+    
+    cleanedCards.forEach(card => {
+        const titleKey = card.title ? card.title.toLowerCase().trim() : '';
+        
+        if (titleKey && titleMap.has(titleKey)) {
+            // Merge with existing card if content is different
+            const existing = titleMap.get(titleKey);
+            const existingContent = existing.content.trim().toLowerCase();
+            const newContent = card.content.trim().toLowerCase();
+            
+            if (existingContent !== newContent && !existingContent.includes(newContent) && !newContent.includes(existingContent)) {
+                // Different content - append it
+                existing.content += '\n\n' + card.content;
+            }
+            // If content is same or subset, skip duplicate
+        } else {
+            // New card
+            if (titleKey) {
+                titleMap.set(titleKey, card);
+            }
+            mergedCards.push(card);
+        }
+    });
+    
+    return mergedCards;
 }
 
 // Format content array into readable markdown
@@ -2977,7 +3256,8 @@ function setupNewsCopyButtons(newsResults) {
             const result = newsResults[sourceIndex];
             
             if (result && result.data) {
-                const textToCopy = formatDataForCopy(result.data, result.source.name);
+                // Copy the original JSON data as formatted JSON string
+                const textToCopy = JSON.stringify(result.data, null, 2);
                 await copyToClipboard(textToCopy, btn);
             }
         });
@@ -3200,3 +3480,5 @@ async function copyToClipboard(text, button) {
         }, 2000);
     }
 }
+
+

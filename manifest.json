@@ -502,6 +502,58 @@
       ]
     },
     {
+      "name": "Happy",
+      "type": "directory",
+      "path": "/ElizaOS Art/Happy",
+      "children": [
+        {
+          "name": "V2 Social Nano Banana - 101.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Happy/V2 Social Nano Banana - 101.png"
+        },
+        {
+          "name": "V2 Social Nano Banana - 20.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Happy/V2 Social Nano Banana - 20.png"
+        },
+        {
+          "name": "V2 Social Nano Banana - 33.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Happy/V2 Social Nano Banana - 33.png"
+        },
+        {
+          "name": "V2 Social Nano Banana - 41.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Happy/V2 Social Nano Banana - 41.png"
+        },
+        {
+          "name": "V2 Social Nano Banana - 42.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Happy/V2 Social Nano Banana - 42.png"
+        },
+        {
+          "name": "V2 Social Nano Banana - 71.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Happy/V2 Social Nano Banana - 71.png"
+        },
+        {
+          "name": "V2 Social Nano Banana - 75.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Happy/V2 Social Nano Banana - 75.png"
+        },
+        {
+          "name": "V2 Social Nano Banana - 93.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Happy/V2 Social Nano Banana - 93.png"
+        },
+        {
+          "name": "V2 Social Nano Banana - 98.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Happy/V2 Social Nano Banana - 98.png"
+        }
+      ]
+    },
+    {
       "name": "Orange",
       "type": "directory",
       "path": "/ElizaOS Art/Orange",
@@ -747,6 +799,63 @@
           "name": "openart-image_XyozMq7s_1765767729078_raw.png",
           "type": "file",
           "path": "/ElizaOS Art/Posters/openart-image_XyozMq7s_1765767729078_raw.png"
+        }
+      ]
+    },
+    {
+      "name": "Spartan",
+      "type": "directory",
+      "path": "/ElizaOS Art/Spartan",
+      "children": [
+        {
+          "name": "k_carv_httpss.mj.runo7os1jEf5Lc_Create_a_subtle_vartiant_of_t_32ad11e9-4ee1-4549-8754-667288af6e00_0.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Spartan/k_carv_httpss.mj.runo7os1jEf5Lc_Create_a_subtle_vartiant_of_t_32ad11e9-4ee1-4549-8754-667288af6e00_0.png"
+        },
+        {
+          "name": "k_carv_httpss.mj.runo7os1jEf5Lc_Create_a_subtle_vartiant_of_t_32ad11e9-4ee1-4549-8754-667288af6e00_1.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Spartan/k_carv_httpss.mj.runo7os1jEf5Lc_Create_a_subtle_vartiant_of_t_32ad11e9-4ee1-4549-8754-667288af6e00_1.png"
+        },
+        {
+          "name": "k_carv_httpss.mj.runo7os1jEf5Lc_Create_a_subtle_vartiant_of_t_32ad11e9-4ee1-4549-8754-667288af6e00_2.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Spartan/k_carv_httpss.mj.runo7os1jEf5Lc_Create_a_subtle_vartiant_of_t_32ad11e9-4ee1-4549-8754-667288af6e00_2.png"
+        },
+        {
+          "name": "k_carv_httpss.mj.runo7os1jEf5Lc_httpss.mj.runndC2zASI3HI_http_082959b7-5237-4689-97a9-164362856d82_3.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Spartan/k_carv_httpss.mj.runo7os1jEf5Lc_httpss.mj.runndC2zASI3HI_http_082959b7-5237-4689-97a9-164362856d82_3.png"
+        },
+        {
+          "name": "k_carv_httpss.mj.runo7os1jEf5Lc_httpss.mj.runndC2zASI3HI_http_646a8ace-f637-4f13-bb26-d2eaf19151b7_2.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Spartan/k_carv_httpss.mj.runo7os1jEf5Lc_httpss.mj.runndC2zASI3HI_http_646a8ace-f637-4f13-bb26-d2eaf19151b7_2.png"
+        },
+        {
+          "name": "k_carv_httpss.mj.runo7os1jEf5Lc_httpss.mj.runndC2zASI3HI_http_646a8ace-f637-4f13-bb26-d2eaf19151b7_3.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Spartan/k_carv_httpss.mj.runo7os1jEf5Lc_httpss.mj.runndC2zASI3HI_http_646a8ace-f637-4f13-bb26-d2eaf19151b7_3.png"
+        },
+        {
+          "name": "k_carv_httpss.mj.runo7os1jEf5Lc_httpss.mj.runndC2zASI3HI_http_a51c1644-af46-4138-9f43-566fe0c49971_3 (1).png",
+          "type": "file",
+          "path": "/ElizaOS Art/Spartan/k_carv_httpss.mj.runo7os1jEf5Lc_httpss.mj.runndC2zASI3HI_http_a51c1644-af46-4138-9f43-566fe0c49971_3 (1).png"
+        },
+        {
+          "name": "k_carv_httpss.mj.runo7os1jEf5Lc_httpss.mj.runndC2zASI3HI_http_a51c1644-af46-4138-9f43-566fe0c49971_3.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Spartan/k_carv_httpss.mj.runo7os1jEf5Lc_httpss.mj.runndC2zASI3HI_http_a51c1644-af46-4138-9f43-566fe0c49971_3.png"
+        },
+        {
+          "name": "k_carv_httpss.mj.runo7os1jEf5Lc_httpss.mj.runndC2zASI3HI_http_b5ddb91d-f088-415d-8f68-81e76096213a_1.png",
+          "type": "file",
+          "path": "/ElizaOS Art/Spartan/k_carv_httpss.mj.runo7os1jEf5Lc_httpss.mj.runndC2zASI3HI_http_b5ddb91d-f088-415d-8f68-81e76096213a_1.png"
+        },
+        {
+          "name": "k_carv_httpss.mj.runo7os1jEf5Lc_httpss.mj.runndC2zASI3HI_http_b5ddb91d-f088-415d-8f68-81e76096213a_2 (2).png",
+          "type": "file",
+          "path": "/ElizaOS Art/Spartan/k_carv_httpss.mj.runo7os1jEf5Lc_httpss.mj.runndC2zASI3HI_http_b5ddb91d-f088-415d-8f68-81e76096213a_2 (2).png"
         }
       ]
     }

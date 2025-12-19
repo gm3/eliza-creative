@@ -1,18 +1,165 @@
 /* ============================================
-   Brand Kit Page Styles
+   Brand Kit Page - Clean, Minimal Styles
    ============================================ */
 
-.main-content .brand-kit-container {
-    max-width: 1200px;
+.brand-kit-container {
+    max-width: 1000px;
     margin: 0 auto;
-    padding: 0;
-    width: 100%;
+    padding: 60px 40px;
 }
 
-.main-content .brand-kit-content {
+.brand-kit-content {
     background: var(--bg-secondary);
     border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border-radius: 12px;
+    padding: 48px;
+    line-height: 1.7;
+}
+
+.brand-kit-content h1 {
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--text-primary);
+    background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.brand-kit-content h2 {
+    font-size: 28px;
+    font-weight: 600;
+    margin-top: 48px;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+.brand-kit-content h3 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-top: 32px;
+    margin-bottom: 16px;
+    color: var(--text-primary);
+}
+
+.brand-kit-content h4 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 16px;
+    color: var(--text-primary);
+}
+
+.brand-kit-content p {
+    margin-bottom: 20px;
+    color: var(--text-secondary);
+    font-size: 16px;
+}
+
+.brand-kit-content a {
+    color: var(--accent);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.brand-kit-content a:hover {
+    color: var(--accent-hover);
+    text-decoration: underline;
+}
+
+.brand-kit-content code {
+    background: var(--bg-tertiary);
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    color: var(--accent);
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 32px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.2s;
+}
+
+.back-link:hover {
+    color: var(--text-primary);
+}
+
+.section-divider {
+    margin: 48px 0;
+    border-top: 1px solid var(--border-color);
+}
+
+/* Color Cards */
+.color-card {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
     padding: 32px;
-    line-height: 1.8;
+    margin: 24px 0;
+    transition: border-color 0.2s;
+}
+
+.color-card:hover {
+    border-color: var(--accent);
+}
+
+.color-swatch {
+    width: 100%;
+    height: 140px;
+    border-radius: 12px;
+    margin: 20px 0;
+    border: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 18px;
+    color: white;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s;
+}
+
+.color-swatch:hover {
+    transform: scale(1.02);
+}
+
+.color-swatch.white {
+    color: #000;
+    text-shadow: none;
+    border: 2px solid var(--border-color);
+}
+
+.color-info {
+    margin-top: 16px;
+}
+
+.color-info code {
+    display: block;
+    margin: 6px 0;
+    font-size: 15px;
+}
+
+.color-info p {
+    margin-top: 16px;
+    margin-bottom: 0;
+    line-height: 1.6;
+}
+
+/* Subsection Spacing */
+.subsection {
+    margin: 32px 0;
+}
+
+.subsection:first-child {
+    margin-top: 0;
 }

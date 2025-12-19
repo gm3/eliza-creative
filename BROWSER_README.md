@@ -375,7 +375,7 @@ If you want to skip thumbnail generation during install:
 
 When contributing to the browser:
 
-1. **Follow existing patterns** in `app.js` and `styles.css`
+1. **Follow existing patterns** in `app.js`
 2. **Test locally** with `npm run dev`
 3. **Build before committing** to verify production build works
 4. **Keep it simple** - prefer straightforward solutions
@@ -399,3 +399,4 @@ When contributing to the browser:
 - `build-manifest.js` - Manifest generation script
 - `generate-thumbnails.js` - Thumbnail generation script
 - `copy-assets.js` - Asset copying script
+

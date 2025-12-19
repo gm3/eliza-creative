@@ -116,14 +116,6 @@ If you build something cool on top of it — bring it back.
 
 ---
 
-## 📜 Licensing
-
-Unless otherwise specified:
-- Assets are shared for use within the ElizaOS ecosystem  
-- Attribution is appreciated  
-- Check individual folders or files for specific licenses  
-
-If you add assets with special licensing requirements, clearly document them.
 
 ---
 
