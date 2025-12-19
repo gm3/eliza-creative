@@ -115,55 +115,6 @@
     color: var(--accent-hover);
 }
 
-.cta-section {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 32px;
-    text-align: center;
-    margin-top: 48px;
-}
-
-.cta-section h2 {
-    margin-bottom: 16px;
-}
-
-.cta-buttons {
-    display: flex;
-    gap: 16px;
-    justify-content: center;
-    margin-top: 24px;
-}
-
-.cta-button {
-    padding: 12px 24px;
-    background: var(--accent);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-block;
-    transition: background 0.2s;
-}
-
-.cta-button:hover {
-    background: var(--accent-hover);
-}
-
-.cta-button.secondary {
-    background: transparent;
-    border: 1px solid var(--border-color);
-    color: var(--text-primary);
-}
-
-.cta-button.secondary:hover {
-    border-color: var(--accent);
-    background: var(--bg-tertiary);
-}
-
 /* Creative Opportunities Section */
 .creative-opportunities {
     background: var(--bg-secondary);

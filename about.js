@@ -34,18 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     );
 
-    // Animate CTA section
-    const cta = document.querySelector('.cta-section');
-    if (cta) {
-        animate(cta,
-            { opacity: [0, 1], y: [20, 0] },
-            { 
-                duration: 0.6,
-                delay: 0.8,
-                easing: 'ease-out'
-            }
-        );
-    }
 });
 
 
