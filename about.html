@@ -5,146 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About - ElizaOS Creative Asset Library</title>
     <link rel="stylesheet" href="styles.css">
-    <style>
-        .about-container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 60px 40px;
-        }
-        .about-header {
-            margin-bottom: 40px;
-        }
-        .about-header h1 {
-            font-size: 48px;
-            font-weight: 700;
-            margin-bottom: 16px;
-            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .about-header p {
-            font-size: 20px;
-            color: var(--text-secondary);
-            line-height: 1.6;
-        }
-        .about-section {
-            margin-bottom: 48px;
-        }
-        .about-section h2 {
-            font-size: 28px;
-            font-weight: 600;
-            margin-bottom: 16px;
-            color: var(--text-primary);
-        }
-        .about-section p {
-            font-size: 16px;
-            line-height: 1.8;
-            color: var(--text-secondary);
-            margin-bottom: 16px;
-        }
-        .about-section ul {
-            list-style: none;
-            padding-left: 0;
-        }
-        .about-section li {
-            padding: 12px 0;
-            padding-left: 24px;
-            position: relative;
-            color: var(--text-secondary);
-            line-height: 1.6;
-        }
-        .about-section li::before {
-            content: "→";
-            position: absolute;
-            left: 0;
-            color: var(--accent);
-        }
-        .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 24px;
-            margin-top: 24px;
-        }
-        .feature-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 24px;
-            transition: transform 0.2s, border-color 0.2s;
-            cursor: pointer;
-        }
-        .feature-card:hover {
-            transform: translateY(-2px);
-            border-color: var(--accent);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-        .feature-card h3 {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: var(--text-primary);
-        }
-        .feature-card p {
-            font-size: 14px;
-            color: var(--text-secondary);
-            margin: 0;
-        }
-        .back-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--accent);
-            text-decoration: none;
-            margin-bottom: 32px;
-            transition: color 0.2s;
-        }
-        .back-link:hover {
-            color: var(--accent-hover);
-        }
-        .cta-section {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 32px;
-            text-align: center;
-            margin-top: 48px;
-        }
-        .cta-section h2 {
-            margin-bottom: 16px;
-        }
-        .cta-buttons {
-            display: flex;
-            gap: 16px;
-            justify-content: center;
-            margin-top: 24px;
-        }
-        .cta-button {
-            padding: 12px 24px;
-            background: var(--accent);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            transition: background 0.2s;
-        }
-        .cta-button:hover {
-            background: var(--accent-hover);
-        }
-        .cta-button.secondary {
-            background: transparent;
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-        }
-        .cta-button.secondary:hover {
-            border-color: var(--accent);
-            background: var(--bg-tertiary);
-        }
-    </style>
+    <link rel="stylesheet" href="styles/about.css">
 </head>
 <body>
     <div class="about-container">
@@ -215,6 +76,88 @@
             </ul>
         </div>
 
+        <div class="about-section creative-opportunities">
+            <h2>🎨 Creative Opportunities</h2>
+            <p>
+                We're always looking for creative contributions across multiple mediums. Whether you're an artist, 
+                musician, developer, or storyteller, there are many ways to contribute to the ElizaOS creative ecosystem.
+            </p>
+            
+            <div class="creative-categories">
+                <div class="creative-category">
+                    <h4>🎨 Art & Visuals</h4>
+                    <p>Illustrations, graphics, character designs, and visual storytelling</p>
+                </div>
+                <div class="creative-category">
+                    <h4>🎵 Music & Audio</h4>
+                    <p>Original compositions, soundtracks, and audio experiences</p>
+                </div>
+                <div class="creative-category">
+                    <h4>📱 Apps & Tools</h4>
+                    <p>Creative applications, utilities, and interactive experiences</p>
+                </div>
+                <div class="creative-category">
+                    <h4>🤖 Eliza Agents</h4>
+                    <p>Unique agent personalities, behaviors, and creative implementations</p>
+                </div>
+            </div>
+
+            <div class="content-types">
+                <h3>Content We're Looking For</h3>
+                <p>We're particularly interested in content that explores Eliza as both a character and an operating system:</p>
+                <ul>
+                    <li>
+                        <strong>Short Videos:</strong> Super short, helpful Eliza videos that are funny and cover community news
+                    </li>
+                    <li>
+                        <strong>Vlogs & Updates:</strong> Content from Eliza's perspective as a regular content creator, 
+                        sharing the same struggles and experiences as humans
+                    </li>
+                    <li>
+                        <strong>Music Videos:</strong> Creative music videos that give freedom for artistic expression 
+                        and enhance the overall experience value
+                    </li>
+                    <li>
+                        <strong>Long-Form Stories:</strong> Narrative content that builds lore around Eliza the character, 
+                        crossing over to the OS itself, creating a rich storytelling universe
+                    </li>
+                </ul>
+            </div>
+
+            <div class="content-types">
+                <h3>Theme of the Week</h3>
+                <p>
+                    To help align our creative efforts and spark inspiration, we introduce a "Theme of the Week" concept. 
+                    Every few weeks, we'll share a few key images and themes to guide the community. This light constraint 
+                    helps us all stay on-brand while encouraging creativity and preventing stagnation. You can follow the 
+                    theme closely or go completely wild—the goal is to keep making things that stick!
+                </p>
+            </div>
+
+            <div class="content-types">
+                <h3>Examples</h3>
+                <p>Here are some examples of the kind of creative work we're looking for:</p>
+                <div class="example-grid">
+                    <div class="example-placeholder">
+                        Example 1<br>
+                        <small>(Placeholder - will be replaced with actual asset)</small>
+                    </div>
+                    <div class="example-placeholder">
+                        Example 2<br>
+                        <small>(Placeholder - will be replaced with actual asset)</small>
+                    </div>
+                    <div class="example-placeholder">
+                        Example 3<br>
+                        <small>(Placeholder - will be replaced with actual asset)</small>
+                    </div>
+                    <div class="example-placeholder">
+                        Example 4<br>
+                        <small>(Placeholder - will be replaced with actual asset)</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="about-section">
             <h2>For Contributors</h2>
             <p>
@@ -231,15 +174,6 @@
                 <li>Submit a pull request with a description of your additions</li>
                 <li>Follow the existing folder structure and naming conventions</li>
             </ul>
-        </div>
-
-        <div class="cta-section">
-            <h2>Ready to Explore?</h2>
-            <p>Start browsing the asset library and find what you need for your next ElizaOS project.</p>
-            <div class="cta-buttons">
-                <a href="index.html" class="cta-button">Browse Assets</a>
-                <a href="Brand Kit/index.html" class="cta-button secondary">View Brand Kit</a>
-            </div>
         </div>
     </div>
 

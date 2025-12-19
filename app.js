@@ -1447,32 +1447,81 @@ async function loadLLMsPage() {
             <div class="llms-section">
                 <h3>🔗 Tools & Platforms</h3>
                 <div class="llms-links">
-                    <a href="https://openai.com/dall-e" target="_blank" class="llms-link-card">
+                    <a href="https://openai.com/dall-e" target="_blank" class="llms-link-card" rel="noopener noreferrer">
                         <div class="llms-link-icon">🎨</div>
                         <div class="llms-link-info">
                             <h4>DALL-E</h4>
                             <p>AI image generation by OpenAI</p>
                         </div>
                     </a>
-                    <a href="https://midjourney.com" target="_blank" class="llms-link-card">
+                    <a href="https://midjourney.com" target="_blank" class="llms-link-card" rel="noopener noreferrer">
                         <div class="llms-link-icon">🖼️</div>
                         <div class="llms-link-info">
                             <h4>Midjourney</h4>
                             <p>AI art generation platform</p>
                         </div>
                     </a>
-                    <a href="https://stability.ai" target="_blank" class="llms-link-card">
+                    <a href="https://stability.ai" target="_blank" class="llms-link-card" rel="noopener noreferrer">
                         <div class="llms-link-icon">⚡</div>
                         <div class="llms-link-info">
                             <h4>Stability AI</h4>
                             <p>Open-source AI image models</p>
                         </div>
                     </a>
-                    <a href="https://leonardo.ai" target="_blank" class="llms-link-card">
-                        <div class="llms-link-icon">🎭</div>
+                    <a href="https://huggingface.co" target="_blank" class="llms-link-card" rel="noopener noreferrer">
+                        <div class="llms-link-icon">🤗</div>
                         <div class="llms-link-info">
-                            <h4>Leonardo.ai</h4>
-                            <p>AI image generation and editing</p>
+                            <h4>Hugging Face</h4>
+                            <p>AI models and datasets platform</p>
+                        </div>
+                    </a>
+                    <a href="https://wan-animate.com" target="_blank" class="llms-link-card" rel="noopener noreferrer">
+                        <div class="llms-link-icon">🎬</div>
+                        <div class="llms-link-info">
+                            <h4>WAN</h4>
+                            <p>AI animation and video generation</p>
+                        </div>
+                    </a>
+                    <a href="https://openai.com/sora" target="_blank" class="llms-link-card" rel="noopener noreferrer">
+                        <div class="llms-link-icon">🎥</div>
+                        <div class="llms-link-info">
+                            <h4>Sora</h4>
+                            <p>AI video generation by OpenAI</p>
+                        </div>
+                    </a>
+                    <a href="https://suno.com" target="_blank" class="llms-link-card" rel="noopener noreferrer">
+                        <div class="llms-link-icon">🎵</div>
+                        <div class="llms-link-info">
+                            <h4>Suno</h4>
+                            <p>AI music generation platform</p>
+                        </div>
+                    </a>
+                    <a href="https://gemini.google.com" target="_blank" class="llms-link-card" rel="noopener noreferrer">
+                        <div class="llms-link-icon">💎</div>
+                        <div class="llms-link-info">
+                            <h4>Gemini</h4>
+                            <p>Google's AI model platform</p>
+                        </div>
+                    </a>
+                    <a href="https://runwayml.com" target="_blank" class="llms-link-card" rel="noopener noreferrer">
+                        <div class="llms-link-icon">🎞️</div>
+                        <div class="llms-link-info">
+                            <h4>RunwayML</h4>
+                            <p>AI video and image generation tools</p>
+                        </div>
+                    </a>
+                    <a href="https://krea.ai" target="_blank" class="llms-link-card" rel="noopener noreferrer">
+                        <div class="llms-link-icon">✨</div>
+                        <div class="llms-link-info">
+                            <h4>Krea.ai</h4>
+                            <p>AI image generation and enhancement</p>
+                        </div>
+                    </a>
+                    <a href="https://www.comfy.org" target="_blank" class="llms-link-card" rel="noopener noreferrer">
+                        <div class="llms-link-icon">🔧</div>
+                        <div class="llms-link-info">
+                            <h4>ComfyUI</h4>
+                            <p>Node-based UI for Stable Diffusion</p>
                         </div>
                     </a>
                 </div>
@@ -1684,7 +1733,14 @@ function initializePersistentMusicPlayer() {
     
     musicPlayerState.playlist = playlist;
     
-    playerContainer.innerHTML = renderMusicPlayerHTML(playlist);
+    // Select a random track for initial display
+    let initialTrackIndex = 0;
+    if (playlist.length > 0 && !musicPlayerState.isInitialized) {
+        initialTrackIndex = Math.floor(Math.random() * playlist.length);
+        musicPlayerState.currentTrackIndex = initialTrackIndex;
+    }
+    
+    playerContainer.innerHTML = renderMusicPlayerHTML(playlist, initialTrackIndex);
     
     // Setup player functionality
     if (!musicPlayerState.isInitialized) {
@@ -1697,14 +1753,16 @@ function initializePersistentMusicPlayer() {
 }
 
 // Render music player HTML (for header)
-function renderMusicPlayerHTML(playlist) {
+function renderMusicPlayerHTML(playlist, initialTrackIndex = 0) {
+    const track = playlist[initialTrackIndex] || playlist[0];
+    const trackNumber = initialTrackIndex + 1;
     return `
         <div class="music-player-container header-player">
             <div class="music-player">
                 <div class="music-player-info">
                     <div class="music-player-track-info">
-                        <div class="music-player-track-name" id="music-player-track-name">${playlist[0]?.displayName || 'No track'}</div>
-                        <div class="music-player-track-number" id="music-player-track-number">1 / ${playlist.length}</div>
+                        <div class="music-player-track-name" id="music-player-track-name">${track?.displayName || 'No track'}</div>
+                        <div class="music-player-track-number" id="music-player-track-number">${trackNumber} / ${playlist.length}</div>
                     </div>
                     <audio id="music-player-audio" preload="metadata"></audio>
                     <div class="music-player-controls">
@@ -1762,9 +1820,16 @@ function setupMusicPlayer(audioAssets) {
         musicPlayerState.audioElement = audio;
     }
     
-    // Only load first track if playlist is empty or we're initializing
-    if (musicPlayerState.playlist.length > 0 && musicPlayerState.currentTrackIndex === 0 && !musicPlayerState.isInitialized) {
-        loadTrack(0);
+    // Load the random track that was selected during initialization
+    // The track index was already set in initializePersistentMusicPlayer
+    if (musicPlayerState.playlist.length > 0 && !musicPlayerState.isInitialized) {
+        // Use a small delay to ensure audio element is ready
+        setTimeout(() => {
+            const trackIndex = musicPlayerState.currentTrackIndex;
+            if (trackIndex >= 0 && trackIndex < musicPlayerState.playlist.length) {
+                loadTrack(trackIndex);
+            }
+        }, 100);
     }
     
     // Volume controls with expand/collapse
