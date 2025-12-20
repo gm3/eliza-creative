@@ -59,6 +59,8 @@ async function loadManifest() {
         collectAllAssets(); // Collect assets after manifest loads
         // Initialize persistent music player after assets are collected
         initializePersistentMusicPlayer();
+        // Initialize thumbnail slideshow after assets are collected
+        initializeThumbnailSlideshow();
     } catch (error) {
         console.error('Error loading manifest:', error);
         const errorMsg = window.location.protocol === 'file:' 
@@ -1351,6 +1353,9 @@ async function loadAboutPage() {
                 // Add click handlers to feature cards for navigation
                 setupFeatureCardLinks(cards);
             }
+            
+            // Initialize hero bento section
+            initializeAboutHeroBento();
         } else {
             previewContainer.innerHTML = '<div class="empty-state"><p>About page content not found</p></div>';
         }
@@ -3507,6 +3512,201 @@ function extractTextFromElement(element) {
     text = text.replace(/\n{3,}/g, '\n\n').trim();
     
     return text;
+}
+
+// Initialize thumbnail slideshow in navigation
+let slideshowInterval = null;
+function initializeThumbnailSlideshow() {
+    const slideshowContainer = document.getElementById('nav-slideshow');
+    if (!slideshowContainer) return;
+    
+    // Don't reinitialize if already set up
+    if (slideshowContainer.querySelectorAll('.nav-slide').length > 0) return;
+    
+    // Collect all image assets
+    const imageAssets = allAssets.filter(asset => {
+        const ext = asset.name.split('.').pop().toLowerCase();
+        return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
+    });
+    
+    if (imageAssets.length === 0) {
+        // Fallback to elizalooking.png if no thumbnails found
+        const basePath = getBasePath();
+        slideshowContainer.innerHTML = `<img src="${basePath}images/elizalooking.png" alt="Eliza" class="active">`;
+        return;
+    }
+    
+    // Shuffle images for variety
+    const shuffled = [...imageAssets].sort(() => Math.random() - 0.5);
+    // Limit to 20 images for performance
+    const imagesToShow = shuffled.slice(0, Math.min(20, shuffled.length));
+    
+    const basePath = getBasePath();
+    let currentIndex = 0;
+    
+    // Create image elements with click handlers and download buttons
+    imagesToShow.forEach((asset, index) => {
+        const ext = asset.name.split('.').pop().toLowerCase();
+        const assetPath = asset.path.startsWith('/') ? asset.path : `/${asset.path}`;
+        const thumbnailPath = assetPath.replace(`.${ext}`, '.jpg');
+        const thumbnailUrl = `${basePath}/thumbnails${thumbnailPath}`;
+        const fullImageUrl = `${basePath}${assetPath}`;
+        
+        // Create slide wrapper
+        const slideWrapper = document.createElement('div');
+        slideWrapper.className = `nav-slide ${index === 0 ? 'active' : ''}`;
+        slideWrapper.setAttribute('data-path', asset.path);
+        slideWrapper.setAttribute('data-name', asset.name);
+        slideWrapper.style.cursor = 'pointer';
+        
+        // Create image
+        const img = document.createElement('img');
+        img.src = thumbnailUrl;
+        img.alt = asset.name;
+        img.onerror = function() {
+            // Fallback to full image if thumbnail doesn't exist
+            this.src = fullImageUrl;
+        };
+        
+        // Create download button overlay
+        const downloadBtn = document.createElement('a');
+        downloadBtn.href = fullImageUrl;
+        downloadBtn.download = asset.name;
+        downloadBtn.className = 'nav-slide-download';
+        downloadBtn.title = 'Download';
+        downloadBtn.innerHTML = `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+        `;
+        
+        // Prevent download button click from triggering slide click
+        downloadBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+        
+        slideWrapper.appendChild(img);
+        slideWrapper.appendChild(downloadBtn);
+        slideshowContainer.appendChild(slideWrapper);
+        
+        // Add click handler to navigate to asset
+        slideWrapper.addEventListener('click', (e) => {
+            // Don't navigate if clicking the download button
+            if (e.target.closest('.nav-slide-download')) return;
+            
+            // Navigate to the asset
+            selectFile(asset.path, asset.name);
+            
+            // Switch to preview view if not already
+            if (currentView !== 'preview') {
+                currentView = 'preview';
+            }
+        });
+    });
+    
+    // Clear any existing interval
+    if (slideshowInterval) {
+        clearInterval(slideshowInterval);
+    }
+    
+    // Cycle through images
+    function nextImage() {
+        const slides = slideshowContainer.querySelectorAll('.nav-slide');
+        if (slides.length === 0) return;
+        
+        // Remove active class from current slide
+        slides[currentIndex].classList.remove('active');
+        
+        // Move to next slide
+        currentIndex = (currentIndex + 1) % slides.length;
+        
+        // Add active class to new slide
+        slides[currentIndex].classList.add('active');
+    }
+    
+    // Change image every 3 seconds
+    slideshowInterval = setInterval(nextImage, 3000);
+}
+
+// Initialize About page hero bento section
+function initializeAboutHeroBento() {
+    const heroContainer = document.getElementById('about-hero-bento');
+    if (!heroContainer) return;
+    
+    const wrapper = heroContainer.querySelector('.about-hero-bento-wrapper');
+    if (!wrapper) return;
+    
+    // Don't reinitialize if already set up
+    if (wrapper.querySelectorAll('.about-hero-item').length > 0) return;
+    
+    // Collect image assets
+    const imageAssets = allAssets.filter(asset => {
+        const ext = asset.name.split('.').pop().toLowerCase();
+        return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
+    });
+    
+    if (imageAssets.length === 0) {
+        wrapper.innerHTML = '<p style="color: var(--text-secondary); padding: 40px; text-align: center;">No images available</p>';
+        return;
+    }
+    
+    // Shuffle and use more images for a packed grid (30-40 images)
+    const shuffled = [...imageAssets].sort(() => Math.random() - 0.5);
+    const imagesToShow = shuffled.slice(0, Math.min(36, shuffled.length));
+    
+    const basePath = getBasePath();
+    // More variety in sizes, but smaller overall
+    const sizeClasses = ['size-small', 'size-square', 'size-medium', 'size-wide', 'size-tall', 'size-small', 'size-square', 'size-large', 'size-small'];
+    
+    // Create items with varied sizes for packed grid
+    let heroHTML = '';
+    imagesToShow.forEach((asset, index) => {
+        const ext = asset.name.split('.').pop().toLowerCase();
+        const assetPath = asset.path.startsWith('/') ? asset.path : `/${asset.path}`;
+        const thumbnailPath = assetPath.replace(`.${ext}`, '.jpg');
+        const thumbnailUrl = `${basePath}/thumbnails${thumbnailPath}`;
+        const fullImageUrl = `${basePath}${assetPath}`;
+        
+        // Cycle through size classes for variety
+        const sizeClass = sizeClasses[index % sizeClasses.length];
+        
+        heroHTML += `
+            <div class="about-hero-item ${sizeClass}" data-path="${escapeHtml(asset.path)}" data-name="${escapeHtml(asset.name)}">
+                <img src="${thumbnailUrl}" alt="${escapeHtml(asset.name)}" loading="lazy" onerror="this.src='${fullImageUrl}'">
+                <a href="${fullImageUrl}" download="${escapeHtml(asset.name)}" class="about-hero-download" title="Download" onclick="event.stopPropagation();">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                </a>
+            </div>
+        `;
+    });
+    
+    // Duplicate items for seamless infinite vertical scroll
+    heroHTML += heroHTML;
+    wrapper.innerHTML = heroHTML;
+    
+    // Add click handlers to navigate to assets
+    wrapper.querySelectorAll('.about-hero-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+            // Don't navigate if clicking the download button
+            if (e.target.closest('.about-hero-download')) return;
+            
+            const path = item.getAttribute('data-path');
+            const name = item.getAttribute('data-name');
+            
+            if (path && name) {
+                selectFile(path, name);
+                if (currentView !== 'preview') {
+                    currentView = 'preview';
+                }
+            }
+        });
+    });
 }
 
 // Copy to clipboard with visual feedback

@@ -8,6 +8,145 @@
     padding: 60px 40px;
 }
 
+/* Hero Bento Section */
+.about-hero-section {
+    margin: 48px 0;
+    padding: 24px 0;
+    overflow: hidden;
+    position: relative;
+}
+
+.about-hero-bento {
+    overflow: hidden;
+    position: relative;
+    height: 400px; /* Fixed height for 3 rows: (120px * 3) + (8px gap * 2) = 376px, rounded to 400px */
+}
+
+.about-hero-bento-wrapper {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    grid-auto-rows: 120px;
+    gap: 8px;
+    animation: scrollHero 50s linear infinite;
+    will-change: transform;
+    grid-auto-flow: dense;
+    max-width: 100%;
+}
+
+.about-hero-bento:hover .about-hero-bento-wrapper {
+    animation-play-state: paused;
+}
+
+@keyframes scrollHero {
+    0% {
+        transform: translateY(0);
+    }
+    100% {
+        transform: translateY(-50%);
+    }
+}
+
+.about-hero-item {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, z-index 0.3s ease;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    grid-row: span 1;
+    grid-column: span 1;
+}
+
+.about-hero-item:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
+    border-color: var(--accent);
+    z-index: 10;
+}
+
+.about-hero-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.about-hero-item:hover img {
+    transform: scale(1.1);
+}
+
+/* Different sizes for variety - smaller and packed */
+.about-hero-item.size-small {
+    grid-row: span 1;
+    grid-column: span 1;
+}
+
+.about-hero-item.size-medium {
+    grid-row: span 2;
+    grid-column: span 1;
+}
+
+.about-hero-item.size-large {
+    grid-row: span 2;
+    grid-column: span 2;
+}
+
+.about-hero-item.size-wide {
+    grid-row: span 1;
+    grid-column: span 2;
+}
+
+.about-hero-item.size-tall {
+    grid-row: span 2;
+    grid-column: span 1;
+}
+
+.about-hero-item.size-square {
+    grid-row: span 1;
+    grid-column: span 1;
+}
+
+.about-hero-download {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    width: 40px;
+    height: 40px;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-decoration: none;
+    opacity: 0;
+    transition: opacity 0.3s ease, background 0.3s ease, transform 0.2s ease;
+    pointer-events: auto;
+    z-index: 2;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.about-hero-item:hover .about-hero-download {
+    opacity: 1;
+}
+
+.about-hero-download:hover {
+    background: rgba(0, 0, 0, 0.9);
+    transform: scale(1.1);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.about-hero-download svg {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+    stroke-width: 2;
+}
+
 .about-header {
     margin-bottom: 40px;
 }
