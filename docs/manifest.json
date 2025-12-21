@@ -342,6 +342,85 @@
           ]
         },
         {
+          "name": "hiphop",
+          "type": "directory",
+          "path": "/Music/Beats/hiphop",
+          "children": [
+            {
+              "name": "elixer.mp3",
+              "type": "file",
+              "path": "/Music/Beats/hiphop/elixer.mp3"
+            },
+            {
+              "name": "Ohyeah.mp3",
+              "type": "file",
+              "path": "/Music/Beats/hiphop/Ohyeah.mp3"
+            },
+            {
+              "name": "Taxi.mp3",
+              "type": "file",
+              "path": "/Music/Beats/hiphop/Taxi.mp3"
+            },
+            {
+              "name": "Womp.mp3",
+              "type": "file",
+              "path": "/Music/Beats/hiphop/Womp.mp3"
+            },
+            {
+              "name": "Womp2.mp3",
+              "type": "file",
+              "path": "/Music/Beats/hiphop/Womp2.mp3"
+            }
+          ]
+        },
+        {
+          "name": "rock",
+          "type": "directory",
+          "path": "/Music/Beats/rock",
+          "children": [
+            {
+              "name": "Crawl.mp3",
+              "type": "file",
+              "path": "/Music/Beats/rock/Crawl.mp3"
+            },
+            {
+              "name": "End.mp3",
+              "type": "file",
+              "path": "/Music/Beats/rock/End.mp3"
+            },
+            {
+              "name": "Grove.mp3",
+              "type": "file",
+              "path": "/Music/Beats/rock/Grove.mp3"
+            },
+            {
+              "name": "heavy.mp3",
+              "type": "file",
+              "path": "/Music/Beats/rock/heavy.mp3"
+            },
+            {
+              "name": "nextlevel.mp3",
+              "type": "file",
+              "path": "/Music/Beats/rock/nextlevel.mp3"
+            },
+            {
+              "name": "Ragin.mp3",
+              "type": "file",
+              "path": "/Music/Beats/rock/Ragin.mp3"
+            },
+            {
+              "name": "rockout.mp3",
+              "type": "file",
+              "path": "/Music/Beats/rock/rockout.mp3"
+            },
+            {
+              "name": "Wild.mp3",
+              "type": "file",
+              "path": "/Music/Beats/rock/Wild.mp3"
+            }
+          ]
+        },
+        {
           "name": "Trap",
           "type": "directory",
           "path": "/Music/Beats/Trap",
