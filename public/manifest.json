@@ -238,72 +238,112 @@
       ]
     },
     {
-      "name": "Ambient",
-      "type": "directory",
-      "path": "/Music/Ambient",
-      "children": [
-        {
-          "name": "BreathOfElectrons.mp3",
-          "type": "file",
-          "path": "/Music/Ambient/BreathOfElectrons.mp3"
-        },
-        {
-          "name": "CityLights.mp3",
-          "type": "file",
-          "path": "/Music/Ambient/CityLights.mp3"
-        },
-        {
-          "name": "CityScape1.mp3",
-          "type": "file",
-          "path": "/Music/Ambient/CityScape1.mp3"
-        },
-        {
-          "name": "CityScape2.mp3",
-          "type": "file",
-          "path": "/Music/Ambient/CityScape2.mp3"
-        },
-        {
-          "name": "CityScape3.mp3",
-          "type": "file",
-          "path": "/Music/Ambient/CityScape3.mp3"
-        },
-        {
-          "name": "CityScape4.mp3",
-          "type": "file",
-          "path": "/Music/Ambient/CityScape4.mp3"
-        },
-        {
-          "name": "Home.mp3",
-          "type": "file",
-          "path": "/Music/Ambient/Home.mp3"
-        },
-        {
-          "name": "RainyDay1.mp3",
-          "type": "file",
-          "path": "/Music/Ambient/RainyDay1.mp3"
-        },
-        {
-          "name": "RainyDay2.mp3",
-          "type": "file",
-          "path": "/Music/Ambient/RainyDay2.mp3"
-        },
-        {
-          "name": "Relax.mp3",
-          "type": "file",
-          "path": "/Music/Ambient/Relax.mp3"
-        },
-        {
-          "name": "Walking.mp3",
-          "type": "file",
-          "path": "/Music/Ambient/Walking.mp3"
-        }
-      ]
-    },
-    {
       "name": "Beats",
       "type": "directory",
       "path": "/Music/Beats",
       "children": [
+        {
+          "name": "Ambient",
+          "type": "directory",
+          "path": "/Music/Beats/Ambient",
+          "children": [
+            {
+              "name": "BreathOfElectrons.mp3",
+              "type": "file",
+              "path": "/Music/Beats/Ambient/BreathOfElectrons.mp3"
+            },
+            {
+              "name": "CityLights.mp3",
+              "type": "file",
+              "path": "/Music/Beats/Ambient/CityLights.mp3"
+            },
+            {
+              "name": "CityScape1.mp3",
+              "type": "file",
+              "path": "/Music/Beats/Ambient/CityScape1.mp3"
+            },
+            {
+              "name": "CityScape2.mp3",
+              "type": "file",
+              "path": "/Music/Beats/Ambient/CityScape2.mp3"
+            },
+            {
+              "name": "CityScape3.mp3",
+              "type": "file",
+              "path": "/Music/Beats/Ambient/CityScape3.mp3"
+            },
+            {
+              "name": "CityScape4.mp3",
+              "type": "file",
+              "path": "/Music/Beats/Ambient/CityScape4.mp3"
+            },
+            {
+              "name": "Home.mp3",
+              "type": "file",
+              "path": "/Music/Beats/Ambient/Home.mp3"
+            },
+            {
+              "name": "RainyDay1.mp3",
+              "type": "file",
+              "path": "/Music/Beats/Ambient/RainyDay1.mp3"
+            },
+            {
+              "name": "RainyDay2.mp3",
+              "type": "file",
+              "path": "/Music/Beats/Ambient/RainyDay2.mp3"
+            },
+            {
+              "name": "Relax.mp3",
+              "type": "file",
+              "path": "/Music/Beats/Ambient/Relax.mp3"
+            },
+            {
+              "name": "spacewalk (1).mp3",
+              "type": "file",
+              "path": "/Music/Beats/Ambient/spacewalk (1).mp3"
+            },
+            {
+              "name": "spacewalk (2).mp3",
+              "type": "file",
+              "path": "/Music/Beats/Ambient/spacewalk (2).mp3"
+            },
+            {
+              "name": "spacewalk (3).mp3",
+              "type": "file",
+              "path": "/Music/Beats/Ambient/spacewalk (3).mp3"
+            },
+            {
+              "name": "spacewalk (4).mp3",
+              "type": "file",
+              "path": "/Music/Beats/Ambient/spacewalk (4).mp3"
+            },
+            {
+              "name": "spacewalk (5).mp3",
+              "type": "file",
+              "path": "/Music/Beats/Ambient/spacewalk (5).mp3"
+            },
+            {
+              "name": "Spacewalk.mp3",
+              "type": "file",
+              "path": "/Music/Beats/Ambient/Spacewalk.mp3"
+            },
+            {
+              "name": "spacewalk1.mp3",
+              "type": "file",
+              "path": "/Music/Beats/Ambient/spacewalk1.mp3"
+            },
+            {
+              "name": "SPACEWALK6.mp3",
+              "type": "file",
+              "path": "/Music/Beats/Ambient/SPACEWALK6.mp3"
+            },
+            {
+              "name": "Walking.mp3",
+              "type": "file",
+              "path": "/Music/Beats/Ambient/Walking.mp3"
+            }
+          ]
+        },
         {
           "name": "dnb",
           "type": "directory",
@@ -370,6 +410,38 @@
               "name": "Womp2.mp3",
               "type": "file",
               "path": "/Music/Beats/hiphop/Womp2.mp3"
+            }
+          ]
+        },
+        {
+          "name": "Lofi",
+          "type": "directory",
+          "path": "/Music/Beats/Lofi",
+          "children": [
+            {
+              "name": "SpaceDream.mp3",
+              "type": "file",
+              "path": "/Music/Beats/Lofi/SpaceDream.mp3"
+            },
+            {
+              "name": "Untitled (1).mp3",
+              "type": "file",
+              "path": "/Music/Beats/Lofi/Untitled (1).mp3"
+            },
+            {
+              "name": "Untitled (2).mp3",
+              "type": "file",
+              "path": "/Music/Beats/Lofi/Untitled (2).mp3"
+            },
+            {
+              "name": "Untitled (3).mp3",
+              "type": "file",
+              "path": "/Music/Beats/Lofi/Untitled (3).mp3"
+            },
+            {
+              "name": "Untitled.mp3",
+              "type": "file",
+              "path": "/Music/Beats/Lofi/Untitled.mp3"
             }
           ]
         },
@@ -557,6 +629,12 @@
       ]
     },
     {
+      "name": "FemaleVocals",
+      "type": "directory",
+      "path": "/Music/FemaleVocals",
+      "children": []
+    },
+    {
       "name": "Fight Scenes",
       "type": "directory",
       "path": "/Music/Fight Scenes",
@@ -609,9 +687,19 @@
           "path": "/Music/Generic Songs With Lyrics/Ghost.mp3"
         },
         {
+          "name": "GoodLuck.mp3",
+          "type": "file",
+          "path": "/Music/Generic Songs With Lyrics/GoodLuck.mp3"
+        },
+        {
           "name": "I dont get it.mp3",
           "type": "file",
           "path": "/Music/Generic Songs With Lyrics/I dont get it.mp3"
+        },
+        {
+          "name": "it wasnt so much that i thought about it.mp3",
+          "type": "file",
+          "path": "/Music/Generic Songs With Lyrics/it wasnt so much that i thought about it.mp3"
         },
         {
           "name": "ItMakesNoSense.mp3",
@@ -642,6 +730,16 @@
           "name": "ohyeah.mp3",
           "type": "file",
           "path": "/Music/Generic Songs With Lyrics/ohyeah.mp3"
+        },
+        {
+          "name": "red light.mp3",
+          "type": "file",
+          "path": "/Music/Generic Songs With Lyrics/red light.mp3"
+        },
+        {
+          "name": "Reflect.mp3",
+          "type": "file",
+          "path": "/Music/Generic Songs With Lyrics/Reflect.mp3"
         },
         {
           "name": "Simple (1).mp3",
@@ -682,6 +780,43 @@
           "name": "WorkingWithLove.mp3",
           "type": "file",
           "path": "/Music/Generic Songs With Lyrics/WorkingWithLove.mp3"
+        }
+      ]
+    },
+    {
+      "name": "MovieSceneBackground",
+      "type": "directory",
+      "path": "/Music/MovieSceneBackground",
+      "children": [
+        {
+          "name": "moviescene2.mp3",
+          "type": "file",
+          "path": "/Music/MovieSceneBackground/moviescene2.mp3"
+        },
+        {
+          "name": "Phone.mp3",
+          "type": "file",
+          "path": "/Music/MovieSceneBackground/Phone.mp3"
+        },
+        {
+          "name": "PhoneCall.mp3",
+          "type": "file",
+          "path": "/Music/MovieSceneBackground/PhoneCall.mp3"
+        },
+        {
+          "name": "PIanoScene.mp3",
+          "type": "file",
+          "path": "/Music/MovieSceneBackground/PIanoScene.mp3"
+        },
+        {
+          "name": "Scene1.mp3",
+          "type": "file",
+          "path": "/Music/MovieSceneBackground/Scene1.mp3"
+        },
+        {
+          "name": "Scene3.mp3",
+          "type": "file",
+          "path": "/Music/MovieSceneBackground/Scene3.mp3"
         }
       ]
     },
@@ -746,6 +881,16 @@
           "path": "/Music/Suspense/49sec_Movie_BG_Sfx_suspense2.mp3"
         }
       ]
+    },
+    {
+      "name": "ElizaMixBoom.mp3",
+      "type": "file",
+      "path": "/Music/ElizaMixBoom.mp3"
+    },
+    {
+      "name": "SpacewalkMixBoom.mp3",
+      "type": "file",
+      "path": "/Music/SpacewalkMixBoom.mp3"
     }
   ],
   "Videos": [

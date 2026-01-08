@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "manifest": "node build-manifest.js",
     "thumbnails": "node generate-thumbnails.js",
-    "postinstall": "node generate-thumbnails.js"
+    "postinstall": "node build-manifest.js && node generate-thumbnails.js"
   },
   "keywords": [
     "elizaos",
