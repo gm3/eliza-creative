@@ -41,6 +41,9 @@
 /* Brand Kit Page */
 @import './styles/brand-kit.css';
 
+/* Zip Cart */
+@import './styles/zip-cart.css';
+
 /* ============================================
    Additional Utility Classes for Dynamic Styles
    ============================================ */

@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ElizaOS Creative Asset Browser</title>
-  <script type="module" crossorigin src="/eliza-creative/assets/index-COOf2-w1.js"></script>
-  <link rel="stylesheet" crossorigin href="/eliza-creative/assets/index-NJCeFntu.css">
+  <script type="module" crossorigin src="/eliza-creative/assets/index-43F0Ea3G.js"></script>
+  <link rel="stylesheet" crossorigin href="/eliza-creative/assets/index-DAksjV8R.css">
 </head>
 <body>
     <div class="app-container">
@@ -82,6 +82,36 @@
                 </div>
             </div>
         </main>
+
+        <!-- Right Panel - Zip Cart -->
+        <aside class="zip-cart-panel" id="zip-cart-panel">
+            <div class="zip-cart-header">
+                <h2>Zip Cart</h2>
+                <button class="zip-cart-close" id="zip-cart-close" title="Close cart">✕</button>
+            </div>
+            <div class="zip-cart-content">
+                <div class="zip-cart-empty" id="zip-cart-empty">
+                    <p>Drag assets here or use "Add to Zip" buttons</p>
+                </div>
+                <div class="zip-cart-items" id="zip-cart-items">
+                    <!-- Cart items will be dynamically added -->
+                </div>
+            </div>
+            <div class="zip-cart-footer">
+                <div class="zip-cart-count" id="zip-cart-count">0 items</div>
+                <button class="zip-cart-download" id="zip-cart-download" disabled>Download Zip</button>
+            </div>
+        </aside>
+
+        <!-- Cart Trigger Button (always visible) -->
+        <button class="zip-cart-trigger" id="zip-cart-trigger" title="Open Zip Cart">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span class="zip-cart-badge" id="zip-cart-badge">0</span>
+        </button>
     </div>
 
 </body>

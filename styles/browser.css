@@ -95,8 +95,10 @@
 /* File Tree */
 .file-tree {
     font-size: 14px;
-    flex: 1;
-    overflow-y: auto;
+    flex: 1 1 auto;
+    overflow-y: visible; /* Let parent handle scrolling */
+    overflow-x: hidden;
+    min-height: 0; /* Allow flex child to shrink */
 }
 
 .file-tree-item {

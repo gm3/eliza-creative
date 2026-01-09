@@ -58,6 +58,33 @@
     background: var(--bg-secondary);
 }
 
+/* Audio preview container */
+.asset-preview .audio-preview-container {
+    position: relative;
+    width: 100%;
+    margin-bottom: 20px;
+    cursor: grab;
+}
+
+.asset-preview .audio-preview-container:active {
+    cursor: grabbing;
+}
+
+.asset-preview .audio-preview-container .button-overlay-group {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+}
+
+.asset-preview .audio-preview-container:hover .download-button-overlay,
+.asset-preview .audio-preview-container:hover .add-to-zip-button-overlay {
+    opacity: 1;
+    pointer-events: auto;
+}
+
 /* Video preview container for responsive sizing */
 .asset-preview .video-preview-container {
     width: 100%;
@@ -67,6 +94,26 @@
     border-radius: 8px;
     overflow: hidden;
     margin-bottom: 20px;
+    cursor: grab;
+}
+
+.asset-preview .video-preview-container:active {
+    cursor: grabbing;
+}
+
+.asset-preview .video-preview-container .button-overlay-group {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+}
+
+.asset-preview .video-preview-container:hover .download-button-overlay,
+.asset-preview .video-preview-container:hover .add-to-zip-button-overlay {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 .asset-preview .video-preview-container video {
@@ -82,6 +129,11 @@
     position: relative;
     display: inline-block;
     width: 100%;
+    cursor: grab;
+}
+
+.image-container:active {
+    cursor: grabbing;
 }
 
 .asset-preview img {
@@ -92,17 +144,25 @@
     display: block;
 }
 
-.download-button-overlay {
+/* Button overlay group for preview */
+.asset-preview .button-overlay-group {
     position: absolute;
     bottom: 16px;
     right: 16px;
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+}
+
+.asset-preview .download-button-overlay,
+.asset-preview .add-to-zip-button-overlay {
     padding: 10px;
     background: rgba(0, 0, 0, 0.5);
     color: white;
     text-decoration: none;
     border-radius: 6px;
     opacity: 0;
-    transition: opacity 0.3s, background 0.2s;
+    transition: opacity 0.3s, background 0.2s, transform 0.2s;
     pointer-events: none;
     backdrop-filter: blur(8px);
     display: flex;
@@ -114,19 +174,23 @@
     cursor: pointer;
 }
 
-.download-button-overlay svg {
+.asset-preview .download-button-overlay svg,
+.asset-preview .add-to-zip-button-overlay svg {
     width: 20px;
     height: 20px;
     stroke: white;
 }
 
-.image-container:hover .download-button-overlay {
+.image-container:hover .download-button-overlay,
+.image-container:hover .add-to-zip-button-overlay {
     opacity: 1;
     pointer-events: auto;
 }
 
-.download-button-overlay:hover {
-    background: rgba(0, 0, 0, 0.7);
+.asset-preview .download-button-overlay:hover,
+.asset-preview .add-to-zip-button-overlay:hover {
+    background: rgba(0, 0, 0, 0.8);
+    transform: scale(1.05);
     color: white;
     text-decoration: none;
 }

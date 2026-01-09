@@ -158,8 +158,15 @@
     text-overflow: ellipsis;
 }
 
-.audio-list-download {
+.audio-list-buttons {
     flex-shrink: 0;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.audio-list-download,
+.audio-list-add-to-zip {
     padding: 8px;
     background: transparent;
     border: 1px solid var(--border-color);
@@ -175,20 +182,23 @@
     opacity: 0.6;
 }
 
-.audio-list-item:hover .audio-list-download {
+.audio-list-item:hover .audio-list-download,
+.audio-list-item:hover .audio-list-add-to-zip {
     opacity: 1;
     border-color: var(--accent);
     color: var(--accent);
     background: var(--bg-tertiary);
 }
 
-.audio-list-download:hover {
+.audio-list-download:hover,
+.audio-list-add-to-zip:hover {
     background: var(--accent);
     border-color: var(--accent);
     color: white;
 }
 
-.audio-list-download svg {
+.audio-list-download svg,
+.audio-list-add-to-zip svg {
     stroke: currentColor;
 }
 
@@ -235,17 +245,25 @@
     }
 }
 
-.bento-item .image-container-bento .download-button-overlay {
+/* Button overlay group for multiple buttons */
+.button-overlay-group {
     position: absolute;
     bottom: 16px;
     right: 16px;
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+}
+
+.bento-item .image-container-bento .download-button-overlay,
+.bento-item .image-container-bento .add-to-zip-button-overlay {
     padding: 10px;
     background: rgba(0, 0, 0, 0.5);
     color: white;
     text-decoration: none;
     border-radius: 6px;
     opacity: 0;
-    transition: opacity 0.3s, background 0.2s;
+    transition: opacity 0.3s, background 0.2s, transform 0.2s;
     pointer-events: none;
     backdrop-filter: blur(8px);
     display: flex;
@@ -253,24 +271,27 @@
     justify-content: center;
     width: 40px;
     height: 40px;
-    z-index: 10;
     border: none;
     cursor: pointer;
 }
 
-.bento-item .image-container-bento .download-button-overlay svg {
+.bento-item .image-container-bento .download-button-overlay svg,
+.bento-item .image-container-bento .add-to-zip-button-overlay svg {
     width: 20px;
     height: 20px;
     stroke: white;
 }
 
-.bento-item .image-container-bento:hover .download-button-overlay {
+.bento-item .image-container-bento:hover .download-button-overlay,
+.bento-item .image-container-bento:hover .add-to-zip-button-overlay {
     opacity: 1;
     pointer-events: auto;
 }
 
-.bento-item .image-container-bento .download-button-overlay:hover {
-    background: rgba(0, 0, 0, 0.7);
+.bento-item .image-container-bento .download-button-overlay:hover,
+.bento-item .image-container-bento .add-to-zip-button-overlay:hover {
+    background: rgba(0, 0, 0, 0.8);
+    transform: scale(1.05);
     color: white;
     text-decoration: none;
 }
@@ -292,17 +313,24 @@
     background: var(--bg-tertiary);
 }
 
-.bento-item .video-container .download-button-overlay {
+.bento-item .video-container .button-overlay-group {
     position: absolute;
     bottom: 16px;
     right: 16px;
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+}
+
+.bento-item .video-container .download-button-overlay,
+.bento-item .video-container .add-to-zip-button-overlay {
     padding: 10px;
     background: rgba(0, 0, 0, 0.5);
     color: white;
     text-decoration: none;
     border-radius: 6px;
     opacity: 0;
-    transition: opacity 0.3s, background 0.2s;
+    transition: opacity 0.3s, background 0.2s, transform 0.2s;
     pointer-events: none;
     backdrop-filter: blur(8px);
     display: flex;
@@ -310,25 +338,29 @@
     justify-content: center;
     width: 40px;
     height: 40px;
-    z-index: 10;
     border: none;
     cursor: pointer;
 }
 
-.bento-item .video-container .download-button-overlay svg {
+.bento-item .video-container .download-button-overlay svg,
+.bento-item .video-container .add-to-zip-button-overlay svg {
     width: 20px;
     height: 20px;
     stroke: white;
 }
 
 .bento-item .video-container:hover .download-button-overlay,
-.bento-item.video:hover .download-button-overlay {
+.bento-item .video-container:hover .add-to-zip-button-overlay,
+.bento-item.video:hover .download-button-overlay,
+.bento-item.video:hover .add-to-zip-button-overlay {
     opacity: 1;
     pointer-events: auto;
 }
 
-.bento-item .video-container .download-button-overlay:hover {
-    background: rgba(0, 0, 0, 0.7);
+.bento-item .video-container .download-button-overlay:hover,
+.bento-item .video-container .add-to-zip-button-overlay:hover {
+    background: rgba(0, 0, 0, 0.8);
+    transform: scale(1.05);
     color: white;
     text-decoration: none;
 }
@@ -423,17 +455,24 @@
     width: 100%;
 }
 
-.bento-item .audio-download-btn {
+.bento-item .bento-item-placeholder .button-overlay-group {
     position: absolute;
     bottom: 8px;
     right: 8px;
+    display: flex;
+    gap: 6px;
+    z-index: 10;
+}
+
+.bento-item .audio-download-btn,
+.bento-item .bento-item-placeholder .add-to-zip-button-overlay {
     padding: 8px;
     background: rgba(0, 0, 0, 0.5);
     color: white;
     text-decoration: none;
     border-radius: 6px;
     opacity: 0;
-    transition: opacity 0.3s, background 0.2s;
+    transition: opacity 0.3s, background 0.2s, transform 0.2s;
     pointer-events: none;
     backdrop-filter: blur(8px);
     display: flex;
@@ -441,24 +480,27 @@
     justify-content: center;
     width: 32px;
     height: 32px;
-    z-index: 10;
     border: none;
     cursor: pointer;
 }
 
-.bento-item .audio-download-btn svg {
+.bento-item .audio-download-btn svg,
+.bento-item .bento-item-placeholder .add-to-zip-button-overlay svg {
     width: 16px;
     height: 16px;
     stroke: white;
 }
 
-.bento-item.audio:hover .audio-download-btn {
+.bento-item.audio:hover .audio-download-btn,
+.bento-item.audio:hover .add-to-zip-button-overlay {
     opacity: 1;
     pointer-events: auto;
 }
 
-.bento-item .audio-download-btn:hover {
-    background: rgba(0, 0, 0, 0.7);
+.bento-item .audio-download-btn:hover,
+.bento-item .bento-item-placeholder .add-to-zip-button-overlay:hover {
+    background: rgba(0, 0, 0, 0.8);
+    transform: scale(1.05);
     color: white;
     text-decoration: none;
 }

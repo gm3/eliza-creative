@@ -1,6 +1,9 @@
 // Import Motion.dev for animations
 import { animate, stagger } from 'motion';
 
+// Import Zip Cart module
+import zipCart from './zip-cart.js';
+
 // State
 let manifest = null;
 let currentPath = '';
@@ -45,6 +48,9 @@ function getBasePath() {
     }
     return '';
 }
+
+// Expose basePath to window for zip-cart module
+window.basePath = getBasePath();
 
 // Load manifest file
 async function loadManifest() {
@@ -237,16 +243,26 @@ function renderBentoGridItems(itemsToRender, totalCount, previewContainer) {
             const thumbnailPath = asset.path.replace(`.${ext}`, '.jpg');
             const thumbnailUrl = `${basePath}/thumbnails${thumbnailPath}`;
             gridHTML += `
-                <div class="bento-item image" data-path="${escapeHtml(asset.path)}" data-name="${escapeHtml(asset.name)}">
+                <div class="bento-item image" data-path="${escapeHtml(asset.path)}" data-name="${escapeHtml(asset.name)}" draggable="true">
                     <div class="image-container-bento">
                         <img class="lazy-image" data-src="${thumbnailUrl}" data-full-src="${assetUrl}" data-fallback="${assetUrl}" alt="${escapeHtml(asset.name)}" loading="lazy" decoding="async" width="400" height="400" onerror="this.onerror=null; this.src=this.dataset.fallback;">
-                        <button class="download-button-overlay" data-download-path="${escapeHtml(asset.path)}" data-download-name="${escapeHtml(asset.name)}" title="Download Image">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                <polyline points="7 10 12 15 17 10"></polyline>
-                                <line x1="12" y1="15" x2="12" y2="3"></line>
-                            </svg>
-                        </button>
+                        <div class="button-overlay-group">
+                            <button class="download-button-overlay" data-download-path="${escapeHtml(asset.path)}" data-download-name="${escapeHtml(asset.name)}" title="Download Image">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="7 10 12 15 17 10"></polyline>
+                                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                                </svg>
+                            </button>
+                            <button class="add-to-zip-button-overlay" data-zip-path="${escapeHtml(asset.path)}" data-zip-name="${escapeHtml(asset.name)}" title="Add to Zip">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="17 8 12 3 7 8"></polyline>
+                                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                                    <path d="M3 15h18"></path>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                     <div class="bento-item-icon"></div>
                     <div class="bento-item-content">
@@ -257,18 +273,28 @@ function renderBentoGridItems(itemsToRender, totalCount, previewContainer) {
             `;
         } else if (type === 'video') {
             gridHTML += `
-                <div class="bento-item video" data-path="${escapeHtml(asset.path)}" data-name="${escapeHtml(asset.name)}">
+                <div class="bento-item video" data-path="${escapeHtml(asset.path)}" data-name="${escapeHtml(asset.name)}" draggable="true">
                     <div class="video-container">
                         <video muted loop preload="metadata" loading="lazy" playsinline>
                             <source src="${assetUrl}" type="video/${ext === 'mov' ? 'quicktime' : ext}">
                         </video>
-                        <button class="download-button-overlay" data-download-path="${escapeHtml(asset.path)}" data-download-name="${escapeHtml(asset.name)}" title="Download Video">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                <polyline points="7 10 12 15 17 10"></polyline>
-                                <line x1="12" y1="15" x2="12" y2="3"></line>
-                            </svg>
-                        </button>
+                        <div class="button-overlay-group">
+                            <button class="download-button-overlay" data-download-path="${escapeHtml(asset.path)}" data-download-name="${escapeHtml(asset.name)}" title="Download Video">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="7 10 12 15 17 10"></polyline>
+                                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                                </svg>
+                            </button>
+                            <button class="add-to-zip-button-overlay" data-zip-path="${escapeHtml(asset.path)}" data-zip-name="${escapeHtml(asset.name)}" title="Add to Zip">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="17 8 12 3 7 8"></polyline>
+                                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                                    <path d="M3 15h18"></path>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                     <div class="bento-item-icon"></div>
                     <div class="bento-item-content">
@@ -281,36 +307,56 @@ function renderBentoGridItems(itemsToRender, totalCount, previewContainer) {
             if (useListLayout) {
                 // List layout for audio items
                 gridHTML += `
-                    <div class="audio-list-item" data-path="${escapeHtml(asset.path)}" data-name="${escapeHtml(asset.name)}">
+                    <div class="audio-list-item" data-path="${escapeHtml(asset.path)}" data-name="${escapeHtml(asset.name)}" draggable="true">
                         <div class="audio-list-icon">🎵</div>
                         <div class="audio-list-info">
                             <div class="audio-list-title">${escapeHtml(asset.name)}</div>
                             <div class="audio-list-path">${escapeHtml(asset.path)}</div>
                         </div>
-                        <button class="audio-list-download" data-download-path="${escapeHtml(asset.path)}" data-download-name="${escapeHtml(asset.name)}" title="Download Audio">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                <polyline points="7 10 12 15 17 10"></polyline>
-                                <line x1="12" y1="15" x2="12" y2="3"></line>
-                            </svg>
-                        </button>
-                    </div>
-                `;
-            } else {
-                // Grid layout for audio items (when not in music view)
-                gridHTML += `
-                    <div class="bento-item audio" data-path="${escapeHtml(asset.path)}" data-name="${escapeHtml(asset.name)}">
-                        <div class="bento-item-placeholder">
-                            <div class="bento-item-placeholder-icon">🎵</div>
-                            <div class="bento-item-placeholder-title">${escapeHtml(asset.name)}</div>
-                            <div class="bento-item-placeholder-path">${escapeHtml(asset.path)}</div>
-                            <button class="download-button-overlay audio-download-btn" data-download-path="${escapeHtml(asset.path)}" data-download-name="${escapeHtml(asset.name)}" title="Download Audio">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <div class="audio-list-buttons">
+                            <button class="audio-list-download" data-download-path="${escapeHtml(asset.path)}" data-download-name="${escapeHtml(asset.name)}" title="Download Audio">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                                     <polyline points="7 10 12 15 17 10"></polyline>
                                     <line x1="12" y1="15" x2="12" y2="3"></line>
                                 </svg>
                             </button>
+                            <button class="audio-list-add-to-zip" data-zip-path="${escapeHtml(asset.path)}" data-zip-name="${escapeHtml(asset.name)}" title="Add to Zip">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="17 8 12 3 7 8"></polyline>
+                                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                                    <path d="M3 15h18"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Grid layout for audio items (when not in music view)
+                gridHTML += `
+                    <div class="bento-item audio" data-path="${escapeHtml(asset.path)}" data-name="${escapeHtml(asset.name)}" draggable="true">
+                        <div class="bento-item-placeholder">
+                            <div class="bento-item-placeholder-icon">🎵</div>
+                            <div class="bento-item-placeholder-title">${escapeHtml(asset.name)}</div>
+                            <div class="bento-item-placeholder-path">${escapeHtml(asset.path)}</div>
+                            <div class="button-overlay-group">
+                                <button class="download-button-overlay audio-download-btn" data-download-path="${escapeHtml(asset.path)}" data-download-name="${escapeHtml(asset.name)}" title="Download Audio">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                        <polyline points="7 10 12 15 17 10"></polyline>
+                                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                                    </svg>
+                                </button>
+                                <button class="add-to-zip-button-overlay" data-zip-path="${escapeHtml(asset.path)}" data-zip-name="${escapeHtml(asset.name)}" title="Add to Zip">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                        <polyline points="17 8 12 3 7 8"></polyline>
+                                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                                        <path d="M3 15h18"></path>
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
                         <div class="bento-item-icon"></div>
                     </div>
@@ -489,6 +535,19 @@ function renderBentoGridItems(itemsToRender, totalCount, previewContainer) {
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
+                return;
+            }
+            
+            // Handle "Add to Zip" buttons
+            const zipBtn = e.target.closest('.add-to-zip-button-overlay, .audio-list-add-to-zip');
+            if (zipBtn) {
+                e.stopPropagation();
+                e.preventDefault();
+                const path = zipBtn.getAttribute('data-zip-path');
+                const name = zipBtn.getAttribute('data-zip-name');
+                if (path && name) {
+                    zipCart.addItem(path, name);
+                }
                 return;
             }
             
@@ -1081,11 +1140,28 @@ function loadAssetPreview(path, name) {
         previewHTML = `
             <div class="asset-preview">
                 ${backButtonHTML}
-                <div class="video-preview-container">
+                <div class="video-preview-container" draggable="true" data-path="${escapeHtml(path)}" data-name="${escapeHtml(name)}">
                     <video controls autoplay playsinline>
                         <source src="${assetUrl}" type="video/${fileExtension === 'mov' ? 'quicktime' : fileExtension}">
                         Your browser does not support the video tag.
                     </video>
+                    <div class="button-overlay-group">
+                        <a href="${assetUrl}" download="${escapeHtml(name)}" class="download-button-overlay" title="Download Video">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                        </a>
+                        <button class="add-to-zip-button-overlay" data-zip-path="${escapeHtml(path)}" data-zip-name="${escapeHtml(name)}" title="Add to Zip">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                                <path d="M3 15h18"></path>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
                 <div class="asset-info">
                     <h3>${escapeHtml(name)}</h3>
@@ -1100,10 +1176,29 @@ function loadAssetPreview(path, name) {
         previewHTML = `
             <div class="asset-preview">
                 ${backButtonHTML}
-                <audio controls autoplay>
-                    <source src="${assetUrl}" type="audio/${fileExtension === 'm4a' ? 'mp4' : fileExtension}">
-                    Your browser does not support the audio tag.
-                </audio>
+                <div class="audio-preview-container" draggable="true" data-path="${escapeHtml(path)}" data-name="${escapeHtml(name)}">
+                    <audio controls autoplay>
+                        <source src="${assetUrl}" type="audio/${fileExtension === 'm4a' ? 'mp4' : fileExtension}">
+                        Your browser does not support the audio tag.
+                    </audio>
+                    <div class="button-overlay-group">
+                        <a href="${assetUrl}" download="${escapeHtml(name)}" class="download-button-overlay" title="Download Audio">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                        </a>
+                        <button class="add-to-zip-button-overlay" data-zip-path="${escapeHtml(path)}" data-zip-name="${escapeHtml(name)}" title="Add to Zip">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                                <path d="M3 15h18"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
                 <div class="asset-info">
                     <h3>${escapeHtml(name)}</h3>
                     <p class="asset-path">${escapeHtml(path)}</p>
@@ -1117,15 +1212,25 @@ function loadAssetPreview(path, name) {
         previewHTML = `
             <div class="asset-preview">
                 ${backButtonHTML}
-                <div class="image-container">
+                <div class="image-container" draggable="true" data-path="${escapeHtml(path)}" data-name="${escapeHtml(name)}">
                     <img src="${assetUrl}" alt="${escapeHtml(name)}" id="preview-image">
-                    <a href="${assetUrl}" download="${escapeHtml(name)}" class="download-button-overlay" title="Download Image">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                            <polyline points="7 10 12 15 17 10"></polyline>
-                            <line x1="12" y1="15" x2="12" y2="3"></line>
-                        </svg>
-                    </a>
+                    <div class="button-overlay-group">
+                        <a href="${assetUrl}" download="${escapeHtml(name)}" class="download-button-overlay" title="Download Image">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                        </a>
+                        <button class="add-to-zip-button-overlay" data-zip-path="${escapeHtml(path)}" data-zip-name="${escapeHtml(name)}" title="Add to Zip">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                                <path d="M3 15h18"></path>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
                 <div class="asset-info">
                     <h3>${escapeHtml(name)}</h3>
@@ -1153,6 +1258,19 @@ function loadAssetPreview(path, name) {
     if (backButton) {
         backButton.addEventListener('click', goBack);
     }
+    
+    // Setup "Add to Zip" buttons in preview
+    previewContainer.querySelectorAll('.add-to-zip-button-overlay').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            const path = btn.getAttribute('data-zip-path');
+            const name = btn.getAttribute('data-zip-name');
+            if (path && name) {
+                zipCart.addItem(path, name);
+            }
+        });
+    });
     
     // Animate preview content with Motion.dev
     const previewContent = previewContainer.querySelector('.asset-preview');
@@ -1731,7 +1849,8 @@ function initializePersistentMusicPlayer() {
         const assetPath = asset.path.startsWith('/') ? asset.path : `/${asset.path}`;
         return {
             name: asset.name,
-            path: `${basePath}${assetPath}`,
+            path: `${basePath}${assetPath}`, // Full URL for audio playback
+            originalPath: asset.path, // Original path for zip cart
             displayName: asset.name.replace(/\.[^/.]+$/, '') // Remove extension
         };
     });
@@ -1781,6 +1900,14 @@ function renderMusicPlayerHTML(playlist, initialTrackIndex = 0) {
                                 <line x1="12" y1="15" x2="12" y2="3"></line>
                             </svg>
                         </a>
+                        <button class="music-player-btn music-player-add-to-zip" id="music-player-add-to-zip" title="Add to Zip">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                                <path d="M3 15h18"></path>
+                            </svg>
+                        </button>
                     </div>
                     <div class="music-player-progress">
                         <div class="music-player-time" id="music-player-current-time">0:00</div>
@@ -1957,6 +2084,19 @@ function setupMusicPlayer(audioAssets) {
                     link.click();
                     document.body.removeChild(link);
                 }
+            }
+        });
+    }
+    
+    // Add to Zip button
+    const addToZipBtn = document.getElementById('music-player-add-to-zip');
+    if (addToZipBtn) {
+        addToZipBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const currentTrack = musicPlayerState.playlist[musicPlayerState.currentTrackIndex];
+            if (currentTrack && currentTrack.originalPath) {
+                zipCart.addItem(currentTrack.originalPath, currentTrack.name);
             }
         });
     }

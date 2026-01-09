@@ -8,7 +8,7 @@
 
 .music-player-container.header-player {
     margin-bottom: 0;
-    margin-left: auto;
+    margin-left: 0;
     margin-right: 0;
     max-width: none;
     width: auto;
@@ -218,14 +218,16 @@
     border-color: var(--accent-hover);
 }
 
-.music-player-download {
+.music-player-download,
+.music-player-add-to-zip {
     text-decoration: none;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.music-player-download svg {
+.music-player-download svg,
+.music-player-add-to-zip svg {
     stroke: currentColor;
 }
 
